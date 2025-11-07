@@ -24,16 +24,30 @@ from datetime import datetime
 import asyncio
 
 # Import all Sierra's subsystems
-from .ai_engine import SafeHavenAI, ConversationMode
-from .empathy_engine import AdvancedEmpathyEngine, EmotionalState, EmpathyResponse
-from .knowledge_acquisition import KnowledgeAcquisitionEngine, KnowledgeDomain
-from .behavioral_capture import NeuralBehavioralCapture, DangerLevel, DangerAssessment
-from .multimodal_interface import MultimodalProcessor, VoiceTone
-from .core_philosophy import CorePhilosophyEngine, CoreValue, PhilosophicalResponse
-from .safety_planning import SafetyPlanningAssistant
-from .resources import ResourceDatabase
-from .security import HIPAAEncryption, SecureSessionManager
-from .config import settings
+try:
+    # Try relative imports first (when used as package)
+    from .ai_engine import SafeHavenAI, ConversationMode
+    from .empathy_engine import AdvancedEmpathyEngine, EmotionalState, EmpathyResponse
+    from .knowledge_acquisition import KnowledgeAcquisitionEngine, KnowledgeDomain
+    from .behavioral_capture import NeuralBehavioralCapture, DangerLevel, DangerAssessment
+    from .multimodal_interface import MultimodalProcessor, VoiceTone
+    from .core_philosophy import CorePhilosophyEngine, CoreValue, PhilosophicalResponse
+    from .safety_planning import SafetyPlanningAssistant
+    from .resources import ResourceDatabase
+    from .security import HIPAAEncryption, SecureSessionManager
+    from .config import settings
+except ImportError:
+    # Fall back to absolute imports (when run directly)
+    from ai_engine import SafeHavenAI, ConversationMode
+    from empathy_engine import AdvancedEmpathyEngine, EmotionalState, EmpathyResponse
+    from knowledge_acquisition import KnowledgeAcquisitionEngine, KnowledgeDomain
+    from behavioral_capture import NeuralBehavioralCapture, DangerLevel, DangerAssessment
+    from multimodal_interface import MultimodalProcessor, VoiceTone
+    from core_philosophy import CorePhilosophyEngine, CoreValue, PhilosophicalResponse
+    from safety_planning import SafetyPlanningAssistant
+    from resources import ResourceDatabase
+    from security import HIPAAEncryption, SecureSessionManager
+    from config import settings
 
 
 class Sierra:
