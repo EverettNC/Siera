@@ -112,6 +112,13 @@ async def get_behavior_capture():
         return f.read()
 
 
+@app.get("/chat", response_class=HTMLResponse)
+async def get_chat():
+    """Serve the main chat interface"""
+    with open("/home/user/Siera/src/templates/chat.html", "r") as f:
+        return f.read()
+
+
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
