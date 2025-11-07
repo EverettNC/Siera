@@ -31,6 +31,15 @@ except ImportError:
     VOICE_AVAILABLE = False
     MultimodalProcessor = None
 
+# Cortex Executive and Behavioral Capture integration
+try:
+    from .cortex_executive import get_cortex, CortexPriority, CortexMode
+    from .behavioral_capture import BehavioralCaptureService
+    from .empathy_engine import AdvancedEmpathyEngine
+    CORTEX_AVAILABLE = True
+except ImportError:
+    CORTEX_AVAILABLE = False
+
 # Initialize FastAPI app
 app = FastAPI(
     title=settings.app_name,
@@ -94,6 +103,13 @@ manager = ConnectionManager()
 async def get_home():
     """Serve the main web interface"""
     return get_html_interface()
+
+
+@app.get("/behavior_capture", response_class=HTMLResponse)
+async def get_behavior_capture():
+    """Serve the behavior capture interface"""
+    with open("/home/user/Siera/src/templates/behavior_capture.html", "r") as f:
+        return f.read()
 
 
 @app.get("/health")
@@ -303,6 +319,191 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
     except Exception as e:
         print(f"WebSocket error: {e}")
         manager.disconnect(session_id)
+
+
+@app.websocket("/ws/behavior_capture")
+async def websocket_behavior_capture(websocket: WebSocket):
+    """WebSocket endpoint for behavior capture and danger assessment"""
+    await websocket.accept()
+
+    # Initialize components if available
+    cortex = get_cortex() if CORTEX_AVAILABLE else None
+    behavioral_capture = BehavioralCaptureService() if CORTEX_AVAILABLE else None
+    empathy_engine = AdvancedEmpathyEngine() if CORTEX_AVAILABLE else None
+    voice_cortex = get_voice_cortex() if VOICE_AVAILABLE else None
+
+    # Register modules with cortex
+    if cortex and CORTEX_AVAILABLE:
+        if behavioral_capture:
+            cortex.register_module("behavioral_capture", behavioral_capture)
+        if empathy_engine:
+            cortex.register_module("empathy_engine", empathy_engine)
+        if voice_cortex:
+            cortex.register_module("voice_cortex", voice_cortex)
+        if resource_db:
+            cortex.register_module("resources", resource_db)
+
+    try:
+        # Send initial status
+        await websocket.send_json({
+            "type": "status",
+            "cortex_available": CORTEX_AVAILABLE,
+            "voice_available": VOICE_AVAILABLE,
+            "message": "Behavior capture system ready"
+        })
+
+        while True:
+            # Receive message from client
+            data = await websocket.receive_json()
+            message_type = data.get("type", "")
+
+            if message_type == "analyze_behavior":
+                # Analyze behavioral input for danger
+                text = data.get("text", "")
+
+                if not CORTEX_AVAILABLE or not behavioral_capture:
+                    # Fallback response
+                    await websocket.send_json({
+                        "type": "danger_assessment",
+                        "level": "SAFE",
+                        "confidence": 0.5,
+                        "patterns": [],
+                        "message": "Cortex system not available - limited analysis"
+                    })
+                    continue
+
+                # Submit to cortex for processing
+                import time
+                request_id = f"behavior_analysis_{time.time()}"
+
+                # Define callback for cortex response
+                async def send_response(response):
+                    # Extract danger assessment
+                    danger_level = response.data.get("danger_level", "SAFE")
+                    confidence = response.data.get("confidence", 0.0)
+                    patterns = response.data.get("patterns", [])
+                    empathy = response.data.get("empathy", {})
+
+                    # Send danger assessment
+                    await websocket.send_json({
+                        "type": "danger_assessment",
+                        "level": danger_level,
+                        "confidence": confidence,
+                        "patterns": patterns
+                    })
+
+                    # Send empathy response
+                    if empathy:
+                        await websocket.send_json({
+                            "type": "empathy_response",
+                            "response": empathy
+                        })
+
+                    # Trigger crisis if needed
+                    if danger_level in ["CRITICAL", "IMMEDIATE"]:
+                        await websocket.send_json({
+                            "type": "crisis_detected",
+                            "level": danger_level
+                        })
+
+                # Submit request to cortex
+                cortex.submit_request(
+                    request_id=request_id,
+                    priority=CortexPriority.NORMAL,
+                    mode=CortexMode.EMOTIONAL_SUPPORT,
+                    content={"text": text},
+                    callback=lambda r: asyncio.create_task(send_response(r))
+                )
+
+            elif message_type == "crisis":
+                # Immediate crisis intervention
+                if cortex and CORTEX_AVAILABLE:
+                    import time
+                    cortex.submit_request(
+                        request_id=f"crisis_{time.time()}",
+                        priority=CortexPriority.CRISIS,
+                        mode=CortexMode.CRISIS,
+                        content={"text": "User triggered emergency", "context": {}}
+                    )
+
+                # Always send crisis resources
+                crisis_resources = resource_db.get_crisis_resources()
+                await websocket.send_json({
+                    "type": "crisis_resources",
+                    "resources": [r.model_dump() for r in crisis_resources]
+                })
+
+                # Voice crisis response
+                if voice_cortex:
+                    voice_cortex.speak_crisis(
+                        "I'm very concerned about your safety. "
+                        "If you're in immediate danger, call 911. "
+                        "The National Domestic Violence Hotline is 1-800-799-7233."
+                    )
+
+            elif message_type == "start_audio_monitor":
+                # Start audio danger monitoring
+                if CORTEX_AVAILABLE:
+                    try:
+                        from .audio_safety_system import get_audio_safety_system
+                        audio_system = get_audio_safety_system()
+
+                        # Define callbacks
+                        def on_danger(assessment):
+                            asyncio.create_task(websocket.send_json({
+                                "type": "audio_danger",
+                                "level": assessment.danger_level.name,
+                                "confidence": assessment.confidence,
+                                "patterns": assessment.patterns_detected
+                            }))
+
+                        def on_crisis(assessment):
+                            asyncio.create_task(websocket.send_json({
+                                "type": "crisis_detected",
+                                "level": assessment.danger_level.name,
+                                "source": "audio"
+                            }))
+
+                        # Start monitoring
+                        success = audio_system.start_monitoring(
+                            danger_callback=on_danger,
+                            crisis_callback=on_crisis
+                        )
+
+                        await websocket.send_json({
+                            "type": "audio_monitor_status",
+                            "active": success,
+                            "message": "Audio monitoring started" if success else "Failed to start audio monitoring"
+                        })
+
+                    except Exception as e:
+                        await websocket.send_json({
+                            "type": "audio_monitor_status",
+                            "active": False,
+                            "message": f"Audio monitoring unavailable: {str(e)}"
+                        })
+
+            elif message_type == "stop_audio_monitor":
+                # Stop audio monitoring
+                try:
+                    from .audio_safety_system import get_audio_safety_system
+                    audio_system = get_audio_safety_system()
+                    audio_system.stop_monitoring()
+
+                    await websocket.send_json({
+                        "type": "audio_monitor_status",
+                        "active": False,
+                        "message": "Audio monitoring stopped"
+                    })
+                except Exception:
+                    pass
+
+    except WebSocketDisconnect:
+        print("Behavior capture WebSocket disconnected")
+    except Exception as e:
+        print(f"Behavior capture WebSocket error: {e}")
+        import traceback
+        traceback.print_exc()
 
 
 def get_html_interface() -> str:
