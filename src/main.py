@@ -119,6 +119,13 @@ async def get_chat():
         return f.read()
 
 
+@app.get("/resources", response_class=HTMLResponse)
+async def get_resources():
+    """Serve the resources page"""
+    with open("/home/user/Siera/src/templates/resources.html", "r") as f:
+        return f.read()
+
+
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
