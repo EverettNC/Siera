@@ -3,13 +3,18 @@ Multimodal Interface System
 Sierra's capabilities: Speech, Sight, Hearing
 
 Gives Sierra the ability to:
-- Speak with warmth and compassion (Text-to-Speech)
+- Speak with warmth and compassion (Text-to-Speech via Voice Cortex)
 - See and understand images/video (Computer Vision)
 - Hear and understand audio (Speech-to-Text)
 - Process multiple modalities simultaneously
 
 Part of The Christman AI Project
 Building accessibility and connection
+
+Voice Cortex Integration:
+- All speech now routes through singleton Voice Cortex
+- Priority-based voice output (crisis interrupts support)
+- HIPAA-compliant audio storage
 """
 
 from typing import Optional, Dict, Any, List
@@ -17,6 +22,14 @@ from dataclasses import dataclass
 from enum import Enum
 import base64
 from datetime import datetime
+
+# Voice Cortex integration - singleton voice controller
+try:
+    from voice_cortex import get_voice_cortex, VoicePriority
+    VOICE_CORTEX_AVAILABLE = True
+except ImportError:
+    VOICE_CORTEX_AVAILABLE = False
+    VoicePriority = None
 
 
 class ModalityType(Enum):
@@ -76,12 +89,20 @@ class SpeechInterface:
     - Appropriate pacing for trauma survivors
     - Emotional attunement
     - Grounding presence
+
+    Voice Cortex Integration:
+    - All speech routes through singleton Voice Cortex
+    - Priority-based output (crisis interrupts support)
+    - Queue management for smooth conversation flow
     """
 
     def __init__(self):
         self.default_tone = VoiceTone.WARM_SUPPORTIVE
         self.speaking_rate = "normal"
         self.warmth_level = 0.9  # Very warm by default
+
+        # Get Voice Cortex if available
+        self.voice_cortex = get_voice_cortex() if VOICE_CORTEX_AVAILABLE else None
 
     def prepare_speech(
         self,
@@ -246,6 +267,76 @@ class SpeechInterface:
             # In production: "audio_data": base64_encoded_audio,
             "status": "ready_for_synthesis"
         }
+
+    def speak_text(
+        self,
+        text: str,
+        tone: Optional[VoiceTone] = None,
+        is_crisis: bool = False,
+        needs_grounding: bool = False,
+        priority: Optional['VoicePriority'] = None
+    ) -> bool:
+        """
+        Make Sierra speak text through Voice Cortex
+
+        Args:
+            text: What to say
+            tone: Voice tone to use
+            is_crisis: Is this a crisis situation?
+            needs_grounding: Does user need grounding?
+            priority: Voice priority (CRITICAL, HIGH, NORMAL, LOW)
+
+        Returns:
+            True if speech was queued successfully
+        """
+
+        if not self.voice_cortex:
+            # Fallback if Voice Cortex not available
+            print(f"[Sierra speaks]: {text}")
+            return False
+
+        # Prepare speech with emotional intelligence
+        speech_output = self.prepare_speech(text, tone, is_crisis, needs_grounding)
+
+        # Determine priority if not explicitly provided
+        if priority is None:
+            if is_crisis:
+                priority = VoicePriority.CRITICAL
+            elif needs_grounding:
+                priority = VoicePriority.HIGH
+            elif speech_output.tone == VoiceTone.URGENT_PROTECTIVE:
+                priority = VoicePriority.CRITICAL
+            elif speech_output.tone == VoiceTone.GENTLE_COMFORTING:
+                priority = VoicePriority.LOW
+            else:
+                priority = VoicePriority.NORMAL
+
+        # Map tone to emotion for Voice Cortex
+        tone_to_emotion = {
+            VoiceTone.WARM_SUPPORTIVE: "supportive",
+            VoiceTone.CALM_GROUNDING: "gentle",
+            VoiceTone.GENTLE_COMFORTING: "gentle",
+            VoiceTone.EMPOWERING: "celebratory",
+            VoiceTone.URGENT_PROTECTIVE: "urgent"
+        }
+
+        emotion = tone_to_emotion.get(speech_output.tone, "supportive")
+
+        # Map pace to speed
+        pace_to_speed = {
+            "slow": 0.85,
+            "normal": 0.95,
+            "fast": 1.05
+        }
+        speed = pace_to_speed.get(speech_output.pace, 0.95)
+
+        # Route through Voice Cortex
+        return self.voice_cortex.speak(
+            text=text,
+            priority=priority,
+            emotion=emotion,
+            speed=speed
+        )
 
 
 class VisionInterface:
@@ -526,7 +617,8 @@ class MultimodalProcessor:
         self,
         response_text: str,
         include_speech: bool = False,
-        is_crisis: bool = False
+        is_crisis: bool = False,
+        needs_grounding: bool = False
     ) -> Dict[str, Any]:
         """
         Generate response in multiple accessible formats
@@ -535,6 +627,7 @@ class MultimodalProcessor:
             response_text: The response content
             include_speech: Include speech synthesis
             is_crisis: Is this a crisis response?
+            needs_grounding: Does user need grounding?
 
         Returns:
             Response in multiple modalities
@@ -542,14 +635,29 @@ class MultimodalProcessor:
 
         output = {
             "text": response_text,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
+            "speech_enabled": include_speech
         }
 
         if include_speech:
+            # Prepare speech metadata
             speech = self.speech_interface.prepare_speech(
                 response_text,
-                is_crisis=is_crisis
+                is_crisis=is_crisis,
+                needs_grounding=needs_grounding
             )
-            output["speech"] = self.speech_interface.synthesize_speech(speech)
+            output["speech_metadata"] = {
+                "tone": speech.tone.value,
+                "pace": speech.pace,
+                "emotion": speech.emotion
+            }
+
+            # Actually speak through Voice Cortex
+            spoke = self.speech_interface.speak_text(
+                text=response_text,
+                is_crisis=is_crisis,
+                needs_grounding=needs_grounding
+            )
+            output["speech_queued"] = spoke
 
         return output

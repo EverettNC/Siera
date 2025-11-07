@@ -1,6 +1,11 @@
 """
 SafeHaven AI - Main Application
 FastAPI backend for domestic violence support AI system
+
+Voice Cortex Integration:
+- Optional voice output for accessibility
+- Priority-based voice (crisis interrupts support)
+- HIPAA-compliant audio handling
 """
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
@@ -16,6 +21,15 @@ from .config import settings
 from .ai_engine import SafeHavenAI, ConversationMode
 from .safety_planning import SafetyPlanningAssistant
 from .resources import ResourceDatabase
+
+# Voice Cortex integration
+try:
+    from .voice_cortex import get_voice_cortex, VoicePriority
+    from .multimodal_interface import MultimodalProcessor
+    VOICE_AVAILABLE = True
+except ImportError:
+    VOICE_AVAILABLE = False
+    MultimodalProcessor = None
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -53,6 +67,8 @@ class ConnectionManager:
         active_sessions[session_id] = {
             "ai_engine": SafeHavenAI(provider="anthropic" if settings.anthropic_api_key else "openai"),
             "safety_planner": SafetyPlanningAssistant(),
+            "multimodal_processor": MultimodalProcessor() if VOICE_AVAILABLE else None,
+            "voice_enabled": False,  # User can enable voice output
             "connected_at": datetime.now().isoformat(),
             "message_count": 0
         }
@@ -164,6 +180,19 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
                 # Get AI response
                 response = await ai_engine.get_response(user_message)
 
+                # Voice output if enabled and available
+                voice_enabled = session.get("voice_enabled", False)
+                if voice_enabled and session.get("multimodal_processor"):
+                    multimodal = session["multimodal_processor"]
+
+                    # Generate voice response with appropriate emotion
+                    voice_response = multimodal.generate_accessible_response(
+                        response_text=response["response"],
+                        include_speech=True,
+                        is_crisis=response["is_crisis"],
+                        needs_grounding=(response["mode"] == "EMOTIONAL_SUPPORT")
+                    )
+
                 # Send response back
                 await manager.send_message(session_id, {
                     "type": "assistant",
@@ -172,6 +201,7 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
                     "is_crisis": response["is_crisis"],
                     "emergency_resources": response.get("emergency_resources"),
                     "safety_reminder": response.get("safety_reminder"),
+                    "voice_enabled": voice_enabled,
                     "timestamp": response["timestamp"]
                 })
 
@@ -183,6 +213,13 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
                         "resources": [r.model_dump() for r in crisis_resources],
                         "priority": "high"
                     })
+
+                    # Crisis voice output (always speak crisis messages if voice available)
+                    if VOICE_AVAILABLE and session.get("multimodal_processor"):
+                        voice_cortex = get_voice_cortex()
+                        voice_cortex.speak_crisis(
+                            "I'm concerned about your safety. Emergency resources are available 24/7."
+                        )
 
             elif message_type == "get_resources":
                 # Get resources by need
@@ -234,6 +271,32 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
                     "message": "Conversation history cleared for your privacy.",
                     "timestamp": datetime.now().isoformat()
                 })
+
+            elif message_type == "toggle_voice":
+                # Toggle voice output
+                if VOICE_AVAILABLE:
+                    current_voice = session.get("voice_enabled", False)
+                    session["voice_enabled"] = not current_voice
+                    new_status = "enabled" if session["voice_enabled"] else "disabled"
+
+                    await manager.send_message(session_id, {
+                        "type": "system",
+                        "message": f"Voice output {new_status}.",
+                        "voice_enabled": session["voice_enabled"],
+                        "timestamp": datetime.now().isoformat()
+                    })
+
+                    # Speak confirmation if voice just enabled
+                    if session["voice_enabled"] and session.get("multimodal_processor"):
+                        voice_cortex = get_voice_cortex()
+                        voice_cortex.speak("Voice output is now enabled. I can speak my responses to you.")
+                else:
+                    await manager.send_message(session_id, {
+                        "type": "system",
+                        "message": "Voice output is not available on this system.",
+                        "voice_available": False,
+                        "timestamp": datetime.now().isoformat()
+                    })
 
     except WebSocketDisconnect:
         manager.disconnect(session_id)
