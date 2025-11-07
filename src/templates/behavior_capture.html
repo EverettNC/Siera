@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sierra Safety Monitor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            color: #b19cd9;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #a0a0a0;
+            font-size: 1.1em;
+        }
+
+        /* Crisis Banner */
+        .crisis-banner {
+            display: none;
+            background: linear-gradient(135deg, #ff4757 0%, #ff6348 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+
+        .crisis-banner.active {
+            display: block;
+        }
+
+        .crisis-banner h2 {
+            color: white;
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        .crisis-banner .hotline {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: white;
+            margin: 15px 0;
+            letter-spacing: 2px;
+        }
+
+        .crisis-banner button {
+            background: white;
+            color: #ff4757;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 10px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        /* Safety Status */
+        .safety-status {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .status-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .status-card.safe {
+            border-color: #2ecc71;
+        }
+
+        .status-card.concern {
+            border-color: #f39c12;
+        }
+
+        .status-card.elevated {
+            border-color: #e67e22;
+        }
+
+        .status-card.high {
+            border-color: #e74c3c;
+        }
+
+        .status-card.critical {
+            border-color: #c0392b;
+            animation: pulse 1s infinite;
+        }
+
+        .status-card h3 {
+            color: #b19cd9;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .danger-level {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .danger-level.safe { color: #2ecc71; }
+        .danger-level.concern { color: #f39c12; }
+        .danger-level.elevated { color: #e67e22; }
+        .danger-level.high { color: #e74c3c; }
+        .danger-level.critical { color: #c0392b; }
+
+        .confidence-bar {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            height: 20px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #b19cd9 0%, #9b59b6 100%);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        /* Behavior Analysis */
+        .behavior-analysis {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .behavior-analysis h3 {
+            color: #b19cd9;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .input-area {
+            margin-bottom: 20px;
+        }
+
+        .input-area textarea {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(177, 156, 217, 0.3);
+            border-radius: 10px;
+            color: #e0e0e0;
+            font-size: 1.1em;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .input-area textarea:focus {
+            outline: none;
+            border-color: #b19cd9;
+        }
+
+        .analyze-button {
+            background: linear-gradient(135deg, #b19cd9 0%, #9b59b6 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        .analyze-button:hover {
+            transform: scale(1.05);
+        }
+
+        .analyze-button:active {
+            transform: scale(0.98);
+        }
+
+        /* Detected Patterns */
+        .patterns-list {
+            margin-top: 20px;
+        }
+
+        .pattern-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #b19cd9;
+        }
+
+        .pattern-item .pattern-name {
+            font-weight: bold;
+            color: #b19cd9;
+            margin-bottom: 5px;
+        }
+
+        .pattern-item .pattern-detail {
+            color: #a0a0a0;
+            font-size: 0.9em;
+        }
+
+        /* Empathy Response */
+        .empathy-response {
+            background: linear-gradient(135deg, rgba(177, 156, 217, 0.2) 0%, rgba(155, 89, 182, 0.2) 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 20px;
+            border: 2px solid rgba(177, 156, 217, 0.3);
+        }
+
+        .empathy-response h4 {
+            color: #b19cd9;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .empathy-response p {
+            color: #e0e0e0;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .action-button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(177, 156, 217, 0.3);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #e0e0e0;
+        }
+
+        .action-button:hover {
+            background: rgba(177, 156, 217, 0.2);
+            border-color: #b19cd9;
+            transform: translateY(-5px);
+        }
+
+        .action-button.emergency {
+            background: linear-gradient(135deg, #ff4757 0%, #ff6348 100%);
+            border-color: #ff4757;
+            color: white;
+        }
+
+        .action-button.emergency:hover {
+            transform: scale(1.05);
+        }
+
+        .action-button i {
+            font-size: 2em;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        /* Audio Monitor */
+        .audio-monitor {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+
+        .audio-monitor h3 {
+            color: #b19cd9;
+            margin-bottom: 20px;
+        }
+
+        .audio-visualizer {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            height: 100px;
+            margin: 20px 0;
+        }
+
+        .audio-bar {
+            width: 8px;
+            background: linear-gradient(to top, #b19cd9, #9b59b6);
+            border-radius: 4px;
+            transition: height 0.1s;
+        }
+
+        .monitor-toggle {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .monitor-toggle.active {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+
+        /* Statistics */
+        .statistics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #b19cd9;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #a0a0a0;
+            font-size: 0.9em;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: #a0a0a0;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .safety-status {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .danger-level {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🛡️ Sierra Safety Monitor</h1>
+            <p>"How can we help you love yourself more?"</p>
+        </div>
+
+        <!-- Crisis Banner (hidden by default) -->
+        <div class="crisis-banner" id="crisisBanner">
+            <h2>⚠️ CRISIS DETECTED - IMMEDIATE SUPPORT AVAILABLE</h2>
+            <div class="hotline">📞 1-800-799-7233</div>
+            <p style="font-size: 1.2em; margin-bottom: 20px;">
+                National Domestic Violence Hotline (24/7, confidential)
+            </p>
+            <button onclick="call911()">📱 CALL 911</button>
+            <button onclick="dismissCrisis()">I'm Safe Now</button>
+        </div>
+
+        <!-- Safety Status -->
+        <div class="safety-status">
+            <div class="status-card safe" id="statusCard">
+                <h3>Current Danger Level</h3>
+                <div class="danger-level safe" id="dangerLevel">SAFE</div>
+                <p style="text-align: center; color: #a0a0a0;">No immediate threats detected</p>
+                <div class="confidence-bar">
+                    <div class="confidence-fill" id="confidenceFill" style="width: 0%"></div>
+                </div>
+                <p style="text-align: center; margin-top: 5px; color: #a0a0a0;">
+                    Confidence: <span id="confidenceText">0%</span>
+                </p>
+            </div>
+
+            <div class="status-card">
+                <h3>Emotional State</h3>
+                <div style="font-size: 2em; text-align: center; margin: 20px 0;">
+                    <span id="emotionIcon">😌</span>
+                </div>
+                <p style="text-align: center; color: #b19cd9; font-size: 1.2em;" id="emotionText">Calm</p>
+                <p style="text-align: center; margin-top: 10px; color: #a0a0a0;" id="emotionSupport">
+                    You're safe right now.
+                </p>
+            </div>
+        </div>
+
+        <!-- Behavior Analysis -->
+        <div class="behavior-analysis">
+            <h3>Behavior Analysis</h3>
+            <div class="input-area">
+                <textarea id="behaviorInput" placeholder="Describe what's happening, how you're feeling, or any concerns... Sierra is here to listen and help."></textarea>
+            </div>
+            <button class="analyze-button" onclick="analyzeBehavior()">🔍 Analyze Safety</button>
+
+            <!-- Detected Patterns -->
+            <div class="patterns-list" id="patternsList" style="display: none;">
+                <h4 style="color: #b19cd9; margin-top: 20px;">Detected Patterns:</h4>
+                <div id="patternsContainer"></div>
+            </div>
+
+            <!-- Empathy Response -->
+            <div class="empathy-response" id="empathyResponse" style="display: none;">
+                <h4>💜 Sierra's Response</h4>
+                <p id="validationText"></p>
+                <p id="affirmationText"></p>
+                <p id="supportText"></p>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <div class="action-button emergency" onclick="triggerCrisis()">
+                <i>🚨</i>
+                <strong>EMERGENCY</strong>
+                <p style="font-size: 0.9em; margin-top: 5px;">I need help NOW</p>
+            </div>
+            <div class="action-button" onclick="loadSafetyPlan()">
+                <i>📋</i>
+                <strong>Safety Plan</strong>
+                <p style="font-size: 0.9em; margin-top: 5px;">Create escape plan</p>
+            </div>
+            <div class="action-button" onclick="loadResources()">
+                <i>📚</i>
+                <strong>Resources</strong>
+                <p style="font-size: 0.9em; margin-top: 5px;">Find help near you</p>
+            </div>
+            <div class="action-button" onclick="openChat()">
+                <i>💬</i>
+                <strong>Talk to Sierra</strong>
+                <p style="font-size: 0.9em; margin-top: 5px;">I'm here to listen</p>
+            </div>
+        </div>
+
+        <!-- Audio Monitor -->
+        <div class="audio-monitor">
+            <h3>🎤 Audio Safety Monitor</h3>
+            <p style="color: #a0a0a0; margin-bottom: 20px;">
+                Real-time background sound analysis for danger detection
+            </p>
+            <div class="audio-visualizer" id="audioVisualizer">
+                <!-- Audio bars will be generated here -->
+            </div>
+            <button class="monitor-toggle" id="monitorToggle" onclick="toggleAudioMonitor()">
+                Start Monitoring
+            </button>
+            <p style="margin-top: 15px; color: #a0a0a0; font-size: 0.9em;">
+                Status: <span id="monitorStatus">Inactive</span>
+            </p>
+        </div>
+
+        <!-- Statistics -->
+        <div class="statistics">
+            <div class="stat-card">
+                <div class="stat-value" id="statInteractions">0</div>
+                <div class="stat-label">Interactions Today</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="statSafetyChecks">0</div>
+                <div class="stat-label">Safety Checks</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="statDangerEvents">0</div>
+                <div class="stat-label">Danger Events</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="statSessionTime">0m</div>
+                <div class="stat-label">Session Time</div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>© 2025 The Christman AI Project — Sierra</p>
+            <p style="margin-top: 10px;">
+                "How can we help you love yourself more?"<br>
+                All data encrypted. HIPAA compliant. Your privacy is sacred.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // WebSocket connection to backend
+        let ws = null;
+        let audioMonitoring = false;
+        let sessionStartTime = Date.now();
+        let stats = {
+            interactions: 0,
+            safetyChecks: 0,
+            dangerEvents: 0
+        };
+
+        // Initialize
+        window.addEventListener('load', () => {
+            connectWebSocket();
+            generateAudioBars();
+            updateSessionTime();
+            setInterval(updateSessionTime, 60000); // Update every minute
+        });
+
+        function connectWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}/ws/behavior_capture`;
+
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = () => {
+                console.log('Connected to Sierra backend');
+            };
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                handleBackendMessage(data);
+            };
+
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+            };
+
+            ws.onclose = () => {
+                console.log('Disconnected from Sierra backend');
+                // Reconnect after 5 seconds
+                setTimeout(connectWebSocket, 5000);
+            };
+        }
+
+        function handleBackendMessage(data) {
+            if (data.type === 'danger_assessment') {
+                updateDangerLevel(data.level, data.confidence, data.patterns);
+            } else if (data.type === 'empathy_response') {
+                showEmpathyResponse(data.response);
+            } else if (data.type === 'crisis_detected') {
+                showCrisisBanner();
+            } else if (data.type === 'audio_danger') {
+                handleAudioDanger(data);
+            }
+        }
+
+        function analyzeBehavior() {
+            const text = document.getElementById('behaviorInput').value;
+            if (!text.trim()) return;
+
+            stats.safetyChecks++;
+            updateStatistics();
+
+            // Send to backend
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'analyze_behavior',
+                    text: text
+                }));
+            }
+
+            // Simulate analysis (replace with real backend response)
+            setTimeout(() => {
+                // Mock response
+                const mockResponse = {
+                    level: 'CONCERN',
+                    confidence: 0.65,
+                    patterns: ['tension', 'fear_expression'],
+                    empathy: {
+                        validation: "I hear that you're feeling scared right now.",
+                        affirmation: "Your feelings are completely valid.",
+                        support: "You don't have to face this alone. I'm here with you."
+                    }
+                };
+
+                updateDangerLevel(mockResponse.level, mockResponse.confidence, mockResponse.patterns);
+                showEmpathyResponse(mockResponse.empathy);
+            }, 1000);
+        }
+
+        function updateDangerLevel(level, confidence, patterns) {
+            const statusCard = document.getElementById('statusCard');
+            const dangerLevel = document.getElementById('dangerLevel');
+            const confidenceFill = document.getElementById('confidenceFill');
+            const confidenceText = document.getElementById('confidenceText');
+
+            // Update classes
+            statusCard.className = 'status-card ' + level.toLowerCase();
+            dangerLevel.className = 'danger-level ' + level.toLowerCase();
+            dangerLevel.textContent = level;
+
+            // Update confidence
+            const confidencePercent = Math.round(confidence * 100);
+            confidenceFill.style.width = confidencePercent + '%';
+            confidenceText.textContent = confidencePercent + '%';
+
+            // Update patterns
+            if (patterns && patterns.length > 0) {
+                showPatterns(patterns);
+            }
+
+            // Update emotion
+            updateEmotion(level);
+
+            // Track stats
+            if (level !== 'SAFE') {
+                stats.dangerEvents++;
+                updateStatistics();
+            }
+
+            // Show crisis banner for critical/immediate
+            if (level === 'CRITICAL' || level === 'IMMEDIATE') {
+                showCrisisBanner();
+            }
+        }
+
+        function updateEmotion(dangerLevel) {
+            const emotionIcon = document.getElementById('emotionIcon');
+            const emotionText = document.getElementById('emotionText');
+            const emotionSupport = document.getElementById('emotionSupport');
+
+            const emotions = {
+                'SAFE': { icon: '😌', text: 'Calm', support: "You're safe right now." },
+                'CONCERN': { icon: '😟', text: 'Concerned', support: "I'm here with you." },
+                'ELEVATED': { icon: '😰', text: 'Anxious', support: "Let's work on a safety plan." },
+                'HIGH': { icon: '😨', text: 'Fearful', support: "You're not alone. Help is available." },
+                'CRITICAL': { icon: '😱', text: 'Terrified', support: "I'm very concerned. Please reach out for help." },
+                'IMMEDIATE': { icon: '🆘', text: 'Emergency', support: "Call 911 if you're in danger." }
+            };
+
+            const emotion = emotions[dangerLevel] || emotions['SAFE'];
+            emotionIcon.textContent = emotion.icon;
+            emotionText.textContent = emotion.text;
+            emotionSupport.textContent = emotion.support;
+        }
+
+        function showPatterns(patterns) {
+            const patternsList = document.getElementById('patternsList');
+            const patternsContainer = document.getElementById('patternsContainer');
+
+            patternsList.style.display = 'block';
+            patternsContainer.innerHTML = '';
+
+            patterns.forEach(pattern => {
+                const patternItem = document.createElement('div');
+                patternItem.className = 'pattern-item';
+                patternItem.innerHTML = `
+                    <div class="pattern-name">${formatPatternName(pattern)}</div>
+                    <div class="pattern-detail">Detected in recent behavior</div>
+                `;
+                patternsContainer.appendChild(patternItem);
+            });
+        }
+
+        function formatPatternName(pattern) {
+            return pattern.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        }
+
+        function showEmpathyResponse(response) {
+            const empathyDiv = document.getElementById('empathyResponse');
+            const validationText = document.getElementById('validationText');
+            const affirmationText = document.getElementById('affirmationText');
+            const supportText = document.getElementById('supportText');
+
+            empathyDiv.style.display = 'block';
+            validationText.textContent = response.validation || '';
+            affirmationText.textContent = response.affirmation || '';
+            supportText.textContent = response.support || '';
+
+            stats.interactions++;
+            updateStatistics();
+        }
+
+        function showCrisisBanner() {
+            document.getElementById('crisisBanner').classList.add('active');
+        }
+
+        function dismissCrisis() {
+            document.getElementById('crisisBanner').classList.remove('active');
+        }
+
+        function call911() {
+            window.location.href = 'tel:911';
+        }
+
+        function triggerCrisis() {
+            showCrisisBanner();
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'crisis' }));
+            }
+        }
+
+        function loadSafetyPlan() {
+            window.location.href = '/safety_plan';
+        }
+
+        function loadResources() {
+            window.location.href = '/resources';
+        }
+
+        function openChat() {
+            window.location.href = '/chat';
+        }
+
+        function generateAudioBars() {
+            const visualizer = document.getElementById('audioVisualizer');
+            for (let i = 0; i < 20; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'audio-bar';
+                bar.style.height = '10px';
+                visualizer.appendChild(bar);
+            }
+        }
+
+        function toggleAudioMonitor() {
+            audioMonitoring = !audioMonitoring;
+            const button = document.getElementById('monitorToggle');
+            const status = document.getElementById('monitorStatus');
+
+            if (audioMonitoring) {
+                button.textContent = 'Stop Monitoring';
+                button.classList.add('active');
+                status.textContent = 'Active - Listening for danger sounds';
+                status.style.color = '#2ecc71';
+                startAudioAnimation();
+
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ type: 'start_audio_monitor' }));
+                }
+            } else {
+                button.textContent = 'Start Monitoring';
+                button.classList.remove('active');
+                status.textContent = 'Inactive';
+                status.style.color = '#a0a0a0';
+                stopAudioAnimation();
+
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ type: 'stop_audio_monitor' }));
+                }
+            }
+        }
+
+        let audioAnimationInterval = null;
+
+        function startAudioAnimation() {
+            const bars = document.querySelectorAll('.audio-bar');
+            audioAnimationInterval = setInterval(() => {
+                bars.forEach(bar => {
+                    const height = Math.random() * 80 + 10;
+                    bar.style.height = height + 'px';
+                });
+            }, 100);
+        }
+
+        function stopAudioAnimation() {
+            if (audioAnimationInterval) {
+                clearInterval(audioAnimationInterval);
+                audioAnimationInterval = null;
+            }
+            const bars = document.querySelectorAll('.audio-bar');
+            bars.forEach(bar => {
+                bar.style.height = '10px';
+            });
+        }
+
+        function handleAudioDanger(data) {
+            updateDangerLevel(data.level, data.confidence, data.patterns);
+        }
+
+        function updateStatistics() {
+            document.getElementById('statInteractions').textContent = stats.interactions;
+            document.getElementById('statSafetyChecks').textContent = stats.safetyChecks;
+            document.getElementById('statDangerEvents').textContent = stats.dangerEvents;
+        }
+
+        function updateSessionTime() {
+            const elapsed = Math.floor((Date.now() - sessionStartTime) / 60000);
+            document.getElementById('statSessionTime').textContent = elapsed + 'm';
+        }
+    </script>
+</body>
+</html>

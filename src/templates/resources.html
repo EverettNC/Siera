@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resources - Help is Available 24/7</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Quick Exit */
+        .quick-exit {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+        }
+
+        .quick-exit:hover {
+            background: #c82333;
+            transform: scale(1.05);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            color: #b19cd9;
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+
+        .header p {
+            color: #a0a0a0;
+            font-size: 1.2em;
+            line-height: 1.6;
+        }
+
+        /* Emergency Banner */
+        .emergency-banner {
+            background: linear-gradient(135deg, #ff4757 0%, #ff6348 100%);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(255, 71, 87, 0.3);
+        }
+
+        .emergency-banner h2 {
+            color: white;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+
+        .emergency-banner .hotline-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .emergency-hotline {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .emergency-hotline h3 {
+            color: white;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .emergency-hotline .number {
+            color: white;
+            font-size: 1.8em;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin: 10px 0;
+        }
+
+        .emergency-hotline .description {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9em;
+        }
+
+        /* Search Bar */
+        .search-section {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 40px;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(177, 156, 217, 0.3);
+            border-radius: 15px;
+            padding: 15px 20px;
+            color: #e0e0e0;
+            font-size: 1.1em;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #b19cd9;
+        }
+
+        .search-button {
+            background: linear-gradient(135deg, #b19cd9 0%, #9b59b6 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .search-button:hover {
+            transform: scale(1.05);
+        }
+
+        .filter-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .filter-tab {
+            background: rgba(177, 156, 217, 0.2);
+            border: 2px solid rgba(177, 156, 217, 0.3);
+            color: #b19cd9;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-tab:hover, .filter-tab.active {
+            background: rgba(177, 156, 217, 0.4);
+            border-color: #b19cd9;
+        }
+
+        /* Resource Categories */
+        .resource-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .resource-category {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(177, 156, 217, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .resource-category:hover {
+            transform: translateY(-5px);
+            border-color: #b19cd9;
+            box-shadow: 0 10px 30px rgba(177, 156, 217, 0.2);
+        }
+
+        .resource-category .icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .resource-category h3 {
+            color: #b19cd9;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .resource-category p {
+            color: #a0a0a0;
+            line-height: 1.6;
+        }
+
+        .resource-category .count {
+            color: #b19cd9;
+            font-weight: bold;
+            margin-top: 15px;
+            font-size: 1.1em;
+        }
+
+        /* Resource List */
+        .resource-list {
+            display: none;
+        }
+
+        .resource-list.show {
+            display: block;
+        }
+
+        .resource-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 4px solid #b19cd9;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 15px;
+        }
+
+        .resource-item h4 {
+            color: #b19cd9;
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+
+        .resource-item .contact {
+            color: #e0e0e0;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .resource-item .contact a {
+            color: #b19cd9;
+            text-decoration: none;
+        }
+
+        .resource-item .contact a:hover {
+            text-decoration: underline;
+        }
+
+        .resource-item .description {
+            color: #a0a0a0;
+            line-height: 1.6;
+            margin: 10px 0;
+        }
+
+        .resource-item .hours {
+            color: #2ecc71;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .resource-item .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .resource-tag {
+            background: rgba(177, 156, 217, 0.2);
+            color: #b19cd9;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.9em;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            padding: 30px;
+            color: #a0a0a0;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .emergency-banner h2 {
+                font-size: 1.4em;
+            }
+
+            .resource-categories {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Quick Exit -->
+    <button class="quick-exit" onclick="quickExit()">⚠️ QUICK EXIT</button>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📚 Resources & Support</h1>
+            <p>You're not alone. Help is available 24/7, confidential and free.</p>
+        </div>
+
+        <!-- Emergency Banner -->
+        <div class="emergency-banner">
+            <h2>🚨 Emergency Hotlines (24/7)</h2>
+            <div class="hotline-grid">
+                <div class="emergency-hotline">
+                    <h3>If You're in Danger</h3>
+                    <div class="number">📞 911</div>
+                    <div class="description">Immediate emergency response</div>
+                </div>
+                <div class="emergency-hotline">
+                    <h3>National DV Hotline</h3>
+                    <div class="number">1-800-799-7233</div>
+                    <div class="description">24/7 support, all languages, confidential</div>
+                </div>
+                <div class="emergency-hotline">
+                    <h3>Crisis Text Line</h3>
+                    <div class="number">Text HOME to 741741</div>
+                    <div class="description">Free, 24/7 crisis support via text</div>
+                </div>
+                <div class="emergency-hotline">
+                    <h3>Suicide Prevention</h3>
+                    <div class="number">988</div>
+                    <div class="description">24/7 mental health crisis support</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Section -->
+        <div class="search-section">
+            <div class="search-bar">
+                <input
+                    type="text"
+                    class="search-input"
+                    id="searchInput"
+                    placeholder="Search resources... (shelter, legal, counseling, etc.)"
+                    onkeyup="handleSearch(event)"
+                />
+                <button class="search-button" onclick="searchResources()">Search</button>
+            </div>
+
+            <div class="filter-tabs">
+                <button class="filter-tab active" onclick="filterByType('all')">All Resources</button>
+                <button class="filter-tab" onclick="filterByType('crisis')">Crisis Support</button>
+                <button class="filter-tab" onclick="filterByType('shelter')">Shelter & Housing</button>
+                <button class="filter-tab" onclick="filterByType('legal')">Legal Help</button>
+                <button class="filter-tab" onclick="filterByType('counseling')">Counseling</button>
+                <button class="filter-tab" onclick="filterByType('financial')">Financial Aid</button>
+            </div>
+        </div>
+
+        <!-- Resource Categories -->
+        <div class="resource-categories" id="resourceCategories">
+            <div class="resource-category" onclick="showCategory('crisis')">
+                <div class="icon">🚨</div>
+                <h3>Crisis Support</h3>
+                <p>Immediate help for dangerous situations</p>
+                <div class="count">5 Resources</div>
+            </div>
+
+            <div class="resource-category" onclick="showCategory('shelter')">
+                <div class="icon">🏠</div>
+                <h3>Shelter & Housing</h3>
+                <p>Safe places to stay, emergency housing</p>
+                <div class="count">8 Resources</div>
+            </div>
+
+            <div class="resource-category" onclick="showCategory('legal')">
+                <div class="icon">⚖️</div>
+                <h3>Legal Assistance</h3>
+                <p>Lawyers, restraining orders, court support</p>
+                <div class="count">6 Resources</div>
+            </div>
+
+            <div class="resource-category" onclick="showCategory('counseling')">
+                <div class="icon">💜</div>
+                <h3>Counseling & Therapy</h3>
+                <p>Trauma-informed mental health support</p>
+                <div class="count">7 Resources</div>
+            </div>
+
+            <div class="resource-category" onclick="showCategory('financial')">
+                <div class="icon">💰</div>
+                <h3>Financial Help</h3>
+                <p>Emergency funds, job training, benefits</p>
+                <div class="count">4 Resources</div>
+            </div>
+
+            <div class="resource-category" onclick="showCategory('support')">
+                <div class="icon">👥</div>
+                <h3>Support Groups</h3>
+                <p>Connect with other survivors</p>
+                <div class="count">5 Resources</div>
+            </div>
+        </div>
+
+        <!-- Resource List (dynamically populated) -->
+        <div class="resource-list" id="resourceList"></div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>All resources are confidential and free.</p>
+            <p style="margin-top: 10px;">
+                "How can we help you love yourself more?"
+            </p>
+            <p style="margin-top: 20px; font-size: 0.9em;">
+                © 2025 Sierra AI - The Christman AI Project<br>
+                Your privacy is sacred. HIPAA compliant. No data stored.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Resource database (would come from backend in production)
+        const resources = {
+            crisis: [
+                {
+                    name: "National Domestic Violence Hotline",
+                    contact: "1-800-799-7233 (SAFE)",
+                    website: "https://www.thehotline.org",
+                    description: "24/7 confidential support in over 200 languages. Trained advocates provide crisis intervention, safety planning, and referrals to local resources.",
+                    hours: "24/7 - Always Available",
+                    tags: ["Crisis", "Phone", "Text", "Online Chat", "All Languages"]
+                },
+                {
+                    name: "Crisis Text Line",
+                    contact: "Text HOME to 741741",
+                    description: "Free, 24/7 crisis support via text message. Connect with a trained crisis counselor for immediate help.",
+                    hours: "24/7 - Always Available",
+                    tags: ["Crisis", "Text", "Youth Friendly"]
+                },
+                {
+                    name: "National Suicide Prevention Lifeline",
+                    contact: "988",
+                    description: "24/7 emotional support for people in suicidal crisis or emotional distress.",
+                    hours: "24/7 - Always Available",
+                    tags: ["Crisis", "Phone", "Mental Health"]
+                }
+            ],
+            shelter: [
+                {
+                    name: "Local Shelter Network",
+                    contact: "Call DV Hotline for Referral: 1-800-799-7233",
+                    description: "Confidential emergency shelter locations. Call the National DV Hotline for a referral to a safe shelter in your area.",
+                    hours: "Varies by Location",
+                    tags: ["Shelter", "Emergency Housing", "Confidential"]
+                },
+                {
+                    name: "Transitional Housing Programs",
+                    contact: "Contact local DV services",
+                    description: "Longer-term housing support (6-24 months) for survivors rebuilding their lives.",
+                    hours: "Contact for Availability",
+                    tags: ["Housing", "Long-term", "Support Services"]
+                }
+            ],
+            legal: [
+                {
+                    name: "Legal Services Corporation",
+                    contact: "Visit LSC.gov to find local legal aid",
+                    description: "Free legal assistance for low-income individuals. Help with restraining orders, divorce, custody, housing.",
+                    hours: "Varies by Location",
+                    tags: ["Legal", "Free", "Restraining Orders", "Divorce"]
+                },
+                {
+                    name: "National Legal Aid & Defender Association",
+                    contact: "202-452-0620",
+                    description: "Connects survivors with legal aid attorneys who specialize in domestic violence cases.",
+                    hours: "Monday-Friday, 9am-5pm EST",
+                    tags: ["Legal", "Attorneys", "Court Support"]
+                }
+            ],
+            counseling: [
+                {
+                    name: "RAINN (Rape, Abuse & Incest National Network)",
+                    contact: "1-800-656-HOPE (4673)",
+                    description: "24/7 support for survivors of sexual violence. Trained staff provide crisis support and local referrals.",
+                    hours: "24/7 - Always Available",
+                    tags: ["Counseling", "Sexual Violence", "24/7", "Confidential"]
+                },
+                {
+                    name: "Psychology Today Therapist Finder",
+                    contact: "Visit PsychologyToday.com",
+                    description: "Search for trauma-informed therapists by location, insurance, and specialty.",
+                    hours: "Self-Service Directory",
+                    tags: ["Therapy", "Mental Health", "Trauma-Informed"]
+                }
+            ],
+            financial: [
+                {
+                    name: "Emergency Financial Assistance (TANF)",
+                    contact: "Contact state human services",
+                    description: "Temporary cash assistance for families in crisis. Helps with rent, utilities, basic needs.",
+                    hours: "Varies by State",
+                    tags: ["Financial", "Emergency Funds", "Government"]
+                },
+                {
+                    name: "Allstate Foundation Purple Purse",
+                    contact: "Visit PurplePurse.com",
+                    description: "Resources and grants for survivors to achieve financial independence.",
+                    hours: "Online Resource",
+                    tags: ["Financial", "Education", "Empowerment"]
+                }
+            ],
+            support: [
+                {
+                    name: "National Coalition Against Domestic Violence",
+                    contact: "Visit NCADV.org",
+                    description: "Information on local support groups, survivor stories, and advocacy opportunities.",
+                    hours: "Online Resource",
+                    tags: ["Support Groups", "Community", "Advocacy"]
+                }
+            ]
+        };
+
+        function showCategory(category) {
+            const listDiv = document.getElementById('resourceList');
+            const categoryDiv = document.getElementById('resourceCategories');
+
+            // Hide categories, show list
+            categoryDiv.style.display = 'none';
+            listDiv.classList.add('show');
+
+            // Build resource list
+            const categoryResources = resources[category] || [];
+            let html = `<h2 style="color: #b19cd9; margin-bottom: 30px; font-size: 2em;">
+                ${getCategoryName(category)} (${categoryResources.length} Resources)
+            </h2>`;
+
+            html += '<button onclick="backToCategories()" style="background: rgba(177, 156, 217, 0.2); border: 2px solid rgba(177, 156, 217, 0.3); color: #b19cd9; padding: 10px 20px; border-radius: 25px; cursor: pointer; margin-bottom: 30px;">← Back to Categories</button>';
+
+            categoryResources.forEach(resource => {
+                html += `
+                    <div class="resource-item">
+                        <h4>${resource.name}</h4>
+                        <div class="contact">${formatContact(resource.contact)}</div>
+                        ${resource.website ? `<div class="contact"><a href="${resource.website}" target="_blank">${resource.website}</a></div>` : ''}
+                        <div class="description">${resource.description}</div>
+                        <div class="hours">⏰ ${resource.hours}</div>
+                        <div class="tags">
+                            ${resource.tags.map(tag => `<span class="resource-tag">${tag}</span>`).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            listDiv.innerHTML = html;
+        }
+
+        function getCategoryName(category) {
+            const names = {
+                crisis: '🚨 Crisis Support',
+                shelter: '🏠 Shelter & Housing',
+                legal: '⚖️ Legal Assistance',
+                counseling: '💜 Counseling & Therapy',
+                financial: '💰 Financial Help',
+                support: '👥 Support Groups'
+            };
+            return names[category] || 'Resources';
+        }
+
+        function formatContact(contact) {
+            // Make phone numbers clickable
+            const phoneRegex = /(\d{1}-\d{3}-\d{3}-\d{4}|\d{3})/g;
+            return contact.replace(phoneRegex, '<a href="tel:$1">$1</a>');
+        }
+
+        function backToCategories() {
+            document.getElementById('resourceCategories').style.display = 'grid';
+            document.getElementById('resourceList').classList.remove('show');
+            document.getElementById('resourceList').innerHTML = '';
+        }
+
+        function filterByType(type) {
+            // Update active tab
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            if (type === 'all') {
+                backToCategories();
+            } else {
+                showCategory(type);
+            }
+        }
+
+        function searchResources() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            if (!query) return;
+
+            const listDiv = document.getElementById('resourceList');
+            const categoryDiv = document.getElementById('resourceCategories');
+
+            categoryDiv.style.display = 'none';
+            listDiv.classList.add('show');
+
+            // Search all resources
+            let results = [];
+            Object.entries(resources).forEach(([category, categoryResources]) => {
+                categoryResources.forEach(resource => {
+                    const searchText = `${resource.name} ${resource.description} ${resource.tags.join(' ')}`.toLowerCase();
+                    if (searchText.includes(query)) {
+                        results.push({ ...resource, category });
+                    }
+                });
+            });
+
+            // Display results
+            let html = `<h2 style="color: #b19cd9; margin-bottom: 30px;">
+                Search Results: "${query}" (${results.length} found)
+            </h2>`;
+
+            html += '<button onclick="backToCategories()" style="background: rgba(177, 156, 217, 0.2); border: 2px solid rgba(177, 156, 217, 0.3); color: #b19cd9; padding: 10px 20px; border-radius: 25px; cursor: pointer; margin-bottom: 30px;">← Back to Categories</button>';
+
+            if (results.length === 0) {
+                html += `<p style="color: #a0a0a0; padding: 30px; text-align: center;">
+                    No resources found. Try searching for "shelter", "legal", "counseling", or "crisis".
+                </p>`;
+            } else {
+                results.forEach(resource => {
+                    html += `
+                        <div class="resource-item">
+                            <h4>${resource.name}</h4>
+                            <div class="contact">${formatContact(resource.contact)}</div>
+                            ${resource.website ? `<div class="contact"><a href="${resource.website}" target="_blank">${resource.website}</a></div>` : ''}
+                            <div class="description">${resource.description}</div>
+                            <div class="hours">⏰ ${resource.hours}</div>
+                            <div class="tags">
+                                ${resource.tags.map(tag => `<span class="resource-tag">${tag}</span>`).join('')}
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            listDiv.innerHTML = html;
+        }
+
+        function handleSearch(event) {
+            if (event.key === 'Enter') {
+                searchResources();
+            }
+        }
+
+        function quickExit() {
+            window.location.replace('https://www.google.com');
+        }
+    </script>
+</body>
+</html>
