@@ -474,7 +474,8 @@ This technology is meant to save lives, not enable harm.
 > And Sierra will be there, believing in you, until you can believe in yourself.
 >
 > With love,
-> Everett
+> Everett![F399F078-114C-4B91-9ECE-C32C02142420](https://github.com/user-attachments/assets/c95ce467-c36a-4d13-8386-9f574245b701)
+
 
 ---
 
