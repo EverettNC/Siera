@@ -124,11 +124,11 @@ async def get_behavior_capture():
 async def get_chat():
     """Serve the enhanced chat interface with speech-to-speech"""
     try:
-        with open("/home/user/Siera/src/templates/chat_enhanced.html", "r") as f:
+        with open("src/templates/chat_enhanced.html", "r") as f:
             return f.read()
     except FileNotFoundError:
         # Fallback to original chat
-        with open("/home/user/Siera/src/templates/chat.html", "r") as f:
+        with open("src/templates/chat.html", "r") as f:
             return f.read()
 
 
