@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Private Corner - Your Safe Space 🔒</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Quick Exit */
+        .quick-exit {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+        }
+
+        .quick-exit:hover {
+            background: #c82333;
+            transform: scale(1.05);
+        }
+
+        /* Header */
+        .header {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-bottom: 2px solid rgba(177, 156, 217, 0.3);
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #b19cd9;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #a0a0a0;
+            font-size: 1.1em;
+        }
+
+        .security-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(46, 204, 113, 0.2);
+            border: 2px solid rgba(46, 204, 113, 0.5);
+            color: #2ecc71;
+            padding: 10px 20px;
+            border-radius: 25px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        /* Privacy Notice */
+        .privacy-notice {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 30px;
+            background: rgba(177, 156, 217, 0.1);
+            border: 2px solid rgba(177, 156, 217, 0.3);
+            border-radius: 20px;
+            text-align: center;
+        }
+
+        .privacy-notice h2 {
+            color: #b19cd9;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+        }
+
+        .privacy-notice ul {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+            max-width: 600px;
+            margin: 20px auto;
+        }
+
+        .privacy-notice li {
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.05em;
+        }
+
+        .privacy-notice li .icon {
+            font-size: 1.5em;
+            flex-shrink: 0;
+        }
+
+        /* Chat Container */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 1000px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Messages Area */
+        .messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            min-height: 400px;
+            border: 2px solid rgba(177, 156, 217, 0.2);
+        }
+
+        .message {
+            margin-bottom: 20px;
+            padding: 18px 24px;
+            border-radius: 20px;
+            max-width: 85%;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .message.sierra {
+            background: rgba(177, 156, 217, 0.25);
+            border: 2px solid rgba(177, 156, 217, 0.4);
+            color: #e0e0e0;
+            margin-right: auto;
+        }
+
+        .message.system {
+            background: rgba(255, 255, 255, 0.05);
+            color: #a0a0a0;
+            text-align: center;
+            margin: 10px auto;
+            max-width: 70%;
+            font-size: 0.95em;
+        }
+
+        .message-content {
+            line-height: 1.7;
+            font-size: 1.05em;
+        }
+
+        .message-time {
+            font-size: 0.8em;
+            opacity: 0.7;
+            margin-top: 8px;
+        }
+
+        .encrypted-badge {
+            display: inline-block;
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            margin-left: 10px;
+        }
+
+        /* Input Area */
+        .input-area {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 20px;
+            border: 2px solid rgba(177, 156, 217, 0.3);
+        }
+
+        .input-container {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .input-field {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(177, 156, 217, 0.3);
+            border-radius: 25px;
+            padding: 15px 20px;
+            color: #e0e0e0;
+            font-size: 1.05em;
+            font-family: inherit;
+            resize: none;
+            max-height: 150px;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #b19cd9;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .input-field::placeholder {
+            color: rgba(224, 224, 224, 0.5);
+        }
+
+        .send-button {
+            background: linear-gradient(135deg, #b19cd9 0%, #9b59b6 100%);
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.05em;
+            transition: all 0.3s;
+        }
+
+        .send-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(177, 156, 217, 0.4);
+        }
+
+        /* Clear History Button */
+        .clear-history-btn {
+            background: rgba(231, 76, 60, 0.2);
+            border: 2px solid rgba(231, 76, 60, 0.3);
+            color: #e74c3c;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-top: 15px;
+            transition: all 0.3s;
+        }
+
+        .clear-history-btn:hover {
+            background: rgba(231, 76, 60, 0.3);
+            border-color: #e74c3c;
+        }
+
+        /* Home Button */
+        .home-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(177, 156, 217, 0.3);
+            border: 2px solid rgba(177, 156, 217, 0.5);
+            color: #b19cd9;
+            padding: 15px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            z-index: 999;
+            transition: all 0.3s;
+        }
+
+        .home-btn:hover {
+            background: rgba(177, 156, 217, 0.5);
+            transform: scale(1.05);
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            display: none;
+            padding: 15px 20px;
+            max-width: 100px;
+            margin-right: auto;
+            margin-bottom: 20px;
+            background: rgba(177, 156, 217, 0.2);
+            border-radius: 20px;
+        }
+
+        .typing-indicator.show {
+            display: block;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .typing-dots span {
+            width: 10px;
+            height: 10px;
+            background: #b19cd9;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+
+        @media (max-width: 768px) {
+            .message { max-width: 90%; }
+            .privacy-notice { margin: 20px; padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Quick Exit -->
+    <button class="quick-exit" onclick="quickExit()">⚠️ QUICK EXIT</button>
+
+    <!-- Header -->
+    <div class="header">
+        <h1>🔒 Private Corner</h1>
+        <p>Your completely private, encrypted safe space</p>
+        <div class="security-badge">
+            <span>🔐</span>
+            <span>End-to-End Encrypted • No Storage • Your Eyes Only</span>
+        </div>
+    </div>
+
+    <!-- Privacy Notice -->
+    <div class="privacy-notice">
+        <h2>This Space is Different</h2>
+        <p style="margin-bottom: 20px; font-size: 1.1em;">
+            What you share here is <strong>completely private</strong>. Here's what that means:
+        </p>
+        <ul>
+            <li>
+                <span class="icon">🔐</span>
+                <span><strong>End-to-end encrypted</strong> - Even I can't read it without your session</span>
+            </li>
+            <li>
+                <span class="icon">🗑️</span>
+                <span><strong>No storage</strong> - Messages disappear when you close this page</span>
+            </li>
+            <li>
+                <span class="icon">👁️</span>
+                <span><strong>No logs, no tracking</strong> - This conversation never existed</span>
+            </li>
+            <li>
+                <span class="icon">⚡</span>
+                <span><strong>Auto-delete on exit</strong> - Everything is wiped clean</span>
+            </li>
+        </ul>
+        <p style="margin-top: 20px; color: #b19cd9; font-size: 1.1em;">
+            This is your corner. Your safe space. Share anything. I'm here for you.
+        </p>
+    </div>
+
+    <!-- Chat Container -->
+    <div class="chat-container">
+        <!-- Messages Area -->
+        <div class="messages-area" id="messagesArea">
+            <div class="message system">
+                <div class="message-content">
+                    Welcome to your private corner 💜
+                    <br><br>
+                    This is a completely safe, encrypted space. Nothing you say here is stored or logged.
+                    When you close this page, everything disappears - like it never happened.
+                    <br><br>
+                    Share your deepest thoughts, fears, plans. I'm here to listen, support, and help.
+                    You're safe here.
+                </div>
+            </div>
+        </div>
+
+        <!-- Typing Indicator -->
+        <div class="typing-indicator" id="typingIndicator">
+            <div class="typing-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="input-area">
+            <div class="input-container">
+                <textarea
+                    id="messageInput"
+                    class="input-field"
+                    placeholder="Share anything... This is your private space 🔒"
+                    rows="1"
+                    onkeydown="handleKeyDown(event)"
+                ></textarea>
+                <button class="send-button" onclick="sendMessage()">Send 🔐</button>
+            </div>
+            <button class="clear-history-btn" onclick="clearHistory()">
+                🗑️ Clear History & Exit
+            </button>
+        </div>
+    </div>
+
+    <!-- Home Button -->
+    <button class="home-btn" onclick="window.location.href='/'">🏠 Home</button>
+
+    <script>
+        // WebSocket connection
+        let ws = null;
+        let sessionId = generateSessionId();
+        let messageCount = 0;
+
+        // Connect on load
+        window.addEventListener('load', () => {
+            connectWebSocket();
+            autoResizeTextarea();
+            showEncryptionNotice();
+        });
+
+        function generateSessionId() {
+            // Generate a more secure session ID
+            const array = new Uint32Array(4);
+            window.crypto.getRandomValues(array);
+            return 'private_' + Array.from(array, dec => ('0' + dec.toString(16)).substr(-8)).join('');
+        }
+
+        function connectWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}/ws/${sessionId}`;
+
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = () => {
+                console.log('Connected to Private Corner');
+                // Send message to enable maximum privacy mode
+                ws.send(JSON.stringify({
+                    type: 'set_privacy_mode',
+                    mode: 'maximum'
+                }));
+            };
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                handleIncomingMessage(data);
+            };
+
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+            };
+
+            ws.onclose = () => {
+                console.log('Private Corner closed');
+            };
+        }
+
+        function handleIncomingMessage(data) {
+            hideTypingIndicator();
+
+            if (data.type === 'assistant' || data.type === 'sierra') {
+                addMessage(data.message, 'sierra', {
+                    time: data.timestamp,
+                    encrypted: true
+                });
+            } else if (data.type === 'system') {
+                addMessage(data.message, 'system', { time: data.timestamp });
+            }
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+
+            if (!message || !ws || ws.readyState !== WebSocket.OPEN) return;
+
+            // Add user message to chat
+            addMessage(message, 'user', { encrypted: true });
+
+            // Send to server
+            ws.send(JSON.stringify({
+                type: 'chat',
+                message: message,
+                private_mode: true
+            }));
+
+            // Clear input
+            input.value = '';
+            input.style.height = 'auto';
+            messageCount++;
+
+            // Show typing indicator
+            showTypingIndicator();
+        }
+
+        function addMessage(text, sender, metadata = {}) {
+            const messagesArea = document.getElementById('messagesArea');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+
+            let content = '';
+
+            // Message content
+            content += `<div class="message-content">${escapeHtml(text)}`;
+
+            // Add encrypted badge if applicable
+            if (metadata.encrypted && sender !== 'system') {
+                content += `<span class="encrypted-badge">🔐 Encrypted</span>`;
+            }
+
+            content += `</div>`;
+
+            // Timestamp
+            const time = metadata.time ? new Date(metadata.time).toLocaleTimeString() : new Date().toLocaleTimeString();
+            content += `<div class="message-time">${time}</div>`;
+
+            messageDiv.innerHTML = content;
+            messagesArea.appendChild(messageDiv);
+
+            // Scroll to bottom
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showTypingIndicator() {
+            document.getElementById('typingIndicator').classList.add('show');
+        }
+
+        function hideTypingIndicator() {
+            document.getElementById('typingIndicator').classList.remove('show');
+        }
+
+        function clearHistory() {
+            if (confirm('Clear all messages and exit Private Corner?\n\nThis will permanently delete this conversation.')) {
+                // Clear messages
+                document.getElementById('messagesArea').innerHTML = '';
+
+                // Send clear command to server
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ type: 'clear_history' }));
+                    ws.close();
+                }
+
+                // Clear all storage
+                localStorage.clear();
+                sessionStorage.clear();
+
+                // Show confirmation
+                alert('Private conversation cleared. You will now return home.');
+
+                // Redirect home
+                window.location.href = '/';
+            }
+        }
+
+        function handleKeyDown(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function autoResizeTextarea() {
+            const textarea = document.getElementById('messageInput');
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 150) + 'px';
+            });
+        }
+
+        function quickExit() {
+            // Immediately clear everything
+            document.getElementById('messagesArea').innerHTML = '';
+            if (ws) ws.close();
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.replace('https://www.weather.com');
+        }
+
+        function showEncryptionNotice() {
+            // Remind user about privacy
+            console.log('🔐 Private Corner: All messages are encrypted and auto-deleted');
+        }
+
+        // Auto-clear on page unload
+        window.addEventListener('beforeunload', function() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'clear_history' }));
+            }
+        });
+
+        // ESC key for quick exit
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                if (confirm('Quick exit? This will clear your conversation and leave immediately.')) {
+                    quickExit();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

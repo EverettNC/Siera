@@ -101,8 +101,13 @@ manager = ConnectionManager()
 
 @app.get("/", response_class=HTMLResponse)
 async def get_home():
-    """Serve the main web interface"""
-    return get_html_interface()
+    """Serve the main Sierra hub - her personality landing page"""
+    try:
+        with open("/home/user/Siera/src/templates/index.html", "r") as f:
+            return f.read()
+    except FileNotFoundError:
+        # Fallback to old interface if new one doesn't exist
+        return get_html_interface()
 
 
 @app.get("/behavior_capture", response_class=HTMLResponse)
@@ -114,9 +119,66 @@ async def get_behavior_capture():
 
 @app.get("/chat", response_class=HTMLResponse)
 async def get_chat():
-    """Serve the main chat interface"""
-    with open("/home/user/Siera/src/templates/chat.html", "r") as f:
+    """Serve the enhanced chat interface with speech-to-speech"""
+    try:
+        with open("/home/user/Siera/src/templates/chat_enhanced.html", "r") as f:
+            return f.read()
+    except FileNotFoundError:
+        # Fallback to original chat
+        with open("/home/user/Siera/src/templates/chat.html", "r") as f:
+            return f.read()
+
+
+@app.get("/private-corner", response_class=HTMLResponse)
+async def get_private_corner():
+    """Serve the private corner - encrypted safe space"""
+    with open("/home/user/Siera/src/templates/private_corner.html", "r") as f:
         return f.read()
+
+
+@app.get("/kids-mode", response_class=HTMLResponse)
+async def get_kids_mode():
+    """Serve the kids emergency mode"""
+    with open("/home/user/Siera/src/templates/kids_mode.html", "r") as f:
+        return f.read()
+
+
+@app.get("/about", response_class=HTMLResponse)
+async def get_about():
+    """Serve the About Sierra page - who she is, her personality"""
+    with open("/home/user/Siera/src/templates/about.html", "r") as f:
+        return f.read()
+
+
+@app.get("/safety-plan", response_class=HTMLResponse)
+async def get_safety_plan():
+    """Serve the interactive safety planning page"""
+    # For now, redirect to chat with safety planning prompt
+    # Can create dedicated page later
+    return """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta http-equiv="refresh" content="0; url=/chat">
+        <script>
+            setTimeout(function() {
+                window.location.href = '/chat';
+                // Auto-send safety planning message
+                setTimeout(function() {
+                    const input = document.getElementById('messageInput');
+                    if (input) {
+                        input.value = 'I want to create a safety plan';
+                        document.querySelector('.send-button').click();
+                    }
+                }, 1000);
+            }, 100);
+        </script>
+    </head>
+    <body>
+        <p>Redirecting to chat for safety planning...</p>
+    </body>
+    </html>
+    """
 
 
 @app.get("/resources", response_class=HTMLResponse)

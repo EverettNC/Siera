@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talk to Sierra - I'm Listening 💜</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Quick Exit */
+        .quick-exit {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+            transition: all 0.3s;
+        }
+
+        .quick-exit:hover {
+            background: #c82333;
+            transform: scale(1.05);
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-bottom: 2px solid rgba(177, 156, 217, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .sierra-avatar-small {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid #b19cd9;
+            overflow: hidden;
+        }
+
+        .sierra-avatar-small img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .header h1 {
+            color: #b19cd9;
+            font-size: 1.8em;
+        }
+
+        .header p {
+            color: #a0a0a0;
+            font-size: 1em;
+        }
+
+        .header .status {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 0.9em;
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+            font-weight: bold;
+        }
+
+        /* Voice Controls */
+        .voice-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .voice-btn {
+            background: rgba(177, 156, 217, 0.2);
+            border: 2px solid rgba(177, 156, 217, 0.3);
+            color: #b19cd9;
+            padding: 12px 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .voice-btn:hover {
+            background: rgba(177, 156, 217, 0.3);
+            transform: scale(1.05);
+        }
+
+        .voice-btn.active {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            border-color: #2ecc71;
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        .voice-btn.listening {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            border-color: #e74c3c;
+            color: white;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7); }
+            50% { box-shadow: 0 0 0 15px rgba(46, 204, 113, 0); }
+        }
+
+        /* Chat Container */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Messages Area */
+        .messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            min-height: 400px;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            padding: 18px 24px;
+            border-radius: 20px;
+            max-width: 80%;
+            animation: fadeIn 0.3s ease-in;
+            position: relative;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .message.sierra {
+            background: rgba(177, 156, 217, 0.2);
+            border: 2px solid rgba(177, 156, 217, 0.3);
+            color: #e0e0e0;
+            margin-right: auto;
+        }
+
+        .message.system {
+            background: rgba(255, 255, 255, 0.05);
+            color: #a0a0a0;
+            text-align: center;
+            margin: 10px auto;
+            max-width: 70%;
+            font-size: 0.95em;
+        }
+
+        .message.crisis {
+            background: linear-gradient(135deg, #ff4757 0%, #ff6348 100%);
+            border: 3px solid #ff6348;
+            animation: emergencyPulse 2s infinite;
+        }
+
+        @keyframes emergencyPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7); }
+            50% { box-shadow: 0 0 0 20px rgba(255, 71, 87, 0); }
+        }
+
+        .message-content {
+            line-height: 1.7;
+            font-size: 1.05em;
+        }
+
+        .message-time {
+            font-size: 0.8em;
+            opacity: 0.7;
+            margin-top: 8px;
+        }
+
+        .message .speaker-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.2em;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: all 0.3s;
+        }
+
+        .message .speaker-icon:hover {
+            opacity: 1;
+            transform: scale(1.2);
+        }
+
+        /* Input Area */
+        .input-area {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 20px;
+            border: 2px solid rgba(177, 156, 217, 0.3);
+        }
+
+        .input-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .mic-button {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            border: none;
+            color: white;
+            padding: 18px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5em;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .mic-button:hover {
+            transform: scale(1.1);
+        }
+
+        .mic-button.listening {
+            animation: pulse 1s infinite;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+        }
+
+        .input-container {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .input-field {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(177, 156, 217, 0.3);
+            border-radius: 25px;
+            padding: 15px 20px;
+            color: #e0e0e0;
+            font-size: 1.05em;
+            font-family: inherit;
+            resize: none;
+            max-height: 150px;
+            transition: all 0.3s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #b19cd9;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .send-button {
+            background: linear-gradient(135deg, #b19cd9 0%, #9b59b6 100%);
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.05em;
+            transition: all 0.3s;
+        }
+
+        .send-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(177, 156, 217, 0.4);
+        }
+
+        /* Quick Responses */
+        .quick-responses {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .quick-response-btn {
+            background: rgba(177, 156, 217, 0.2);
+            border: 2px solid rgba(177, 156, 217, 0.3);
+            color: #b19cd9;
+            padding: 10px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.95em;
+            transition: all 0.3s;
+        }
+
+        .quick-response-btn:hover {
+            background: rgba(177, 156, 217, 0.3);
+            border-color: #b19cd9;
+            transform: translateY(-2px);
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            display: none;
+            padding: 15px 20px;
+            max-width: 100px;
+            margin-right: auto;
+            margin-bottom: 20px;
+            background: rgba(177, 156, 217, 0.2);
+            border-radius: 20px;
+        }
+
+        .typing-indicator.show {
+            display: block;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .typing-dots span {
+            width: 10px;
+            height: 10px;
+            background: #b19cd9;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+
+        /* Speech Indicator */
+        .speaking-indicator {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background: linear-gradient(135deg, #b19cd9, #9b59b6);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 50px;
+            box-shadow: 0 5px 20px rgba(177, 156, 217, 0.5);
+            display: none;
+            align-items: center;
+            gap: 10px;
+            z-index: 999;
+        }
+
+        .speaking-indicator.show {
+            display: flex;
+        }
+
+        .speaking-indicator .wave {
+            display: flex;
+            gap: 3px;
+        }
+
+        .speaking-indicator .wave span {
+            width: 4px;
+            height: 20px;
+            background: white;
+            border-radius: 2px;
+            animation: wave 1s ease-in-out infinite;
+        }
+
+        .speaking-indicator .wave span:nth-child(2) { animation-delay: 0.1s; }
+        .speaking-indicator .wave span:nth-child(3) { animation-delay: 0.2s; }
+        .speaking-indicator .wave span:nth-child(4) { animation-delay: 0.3s; }
+
+        @keyframes wave {
+            0%, 100% { height: 10px; }
+            50% { height: 25px; }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .message { max-width: 90%; }
+            .header { flex-direction: column; gap: 10px; }
+            .voice-controls { flex-wrap: wrap; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Quick Exit -->
+    <button class="quick-exit" onclick="quickExit()">⚠️ QUICK EXIT</button>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="header-left">
+            <div class="sierra-avatar-small">
+                <img src="sierra-avatar.png" alt="Sierra" onerror="this.innerHTML='💜'">
+            </div>
+            <div>
+                <h1>💜 Talk to Sierra</h1>
+                <p>"I'm here, I'm listening, and I care about you"</p>
+            </div>
+        </div>
+        <div class="voice-controls">
+            <span class="status" id="status">● Connected</span>
+            <button class="voice-btn" id="voiceToggle" onclick="toggleVoice()">
+                <span id="voiceIcon">🔇</span>
+                <span id="voiceText">Voice Off</span>
+            </button>
+            <button class="voice-btn" onclick="window.location.href='/'">🏠 Home</button>
+        </div>
+    </div>
+
+    <!-- Chat Container -->
+    <div class="chat-container">
+        <!-- Messages Area -->
+        <div class="messages-area" id="messagesArea">
+            <div class="message system">
+                <div class="message-content">
+                    Hey, it's Sierra 💜 This is a completely safe, private space. Whatever you want to talk about,
+                    I'm here for you. No judgment, just support. You can type or use the microphone to speak to me.
+                </div>
+            </div>
+        </div>
+
+        <!-- Typing Indicator -->
+        <div class="typing-indicator" id="typingIndicator">
+            <div class="typing-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="input-area">
+            <div class="quick-responses">
+                <button class="quick-response-btn" onclick="sendQuick('Hi Sierra, I need to talk')">Just need to talk</button>
+                <button class="quick-response-btn" onclick="sendQuick('I feel scared')">I feel scared</button>
+                <button class="quick-response-btn" onclick="sendQuick('Can you help me?')">I need help</button>
+                <button class="quick-response-btn" onclick="sendQuick('Tell me about resources')">Resources</button>
+                <button class="quick-response-btn" onclick="sendQuick('I need a safety plan')">Safety plan</button>
+            </div>
+
+            <div class="input-controls">
+                <button class="mic-button" id="micButton" onclick="toggleSpeechRecognition()" title="Click to speak">
+                    🎤
+                </button>
+                <div style="color: #a0a0a0; font-size: 0.9em;" id="listeningText"></div>
+            </div>
+
+            <div class="input-container">
+                <textarea
+                    id="messageInput"
+                    class="input-field"
+                    placeholder="Type your message... or use the microphone to speak 🎤"
+                    rows="1"
+                    onkeydown="handleKeyDown(event)"
+                ></textarea>
+                <button class="send-button" onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Speaking Indicator -->
+    <div class="speaking-indicator" id="speakingIndicator">
+        <div class="wave">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <span>Sierra is speaking...</span>
+    </div>
+
+    <script>
+        // WebSocket connection
+        let ws = null;
+        let sessionId = generateSessionId();
+        let voiceEnabled = false;
+        let isSpeaking = false;
+        let recognition = null;
+        let speechSynthesis = window.speechSynthesis;
+
+        // Initialize speech recognition (for speech-to-text)
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+
+            recognition.onstart = function() {
+                document.getElementById('micButton').classList.add('listening');
+                document.getElementById('listeningText').textContent = 'Listening...';
+            };
+
+            recognition.onresult = function(event) {
+                let transcript = '';
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    transcript += event.results[i][0].transcript;
+                }
+                document.getElementById('messageInput').value = transcript;
+            };
+
+            recognition.onend = function() {
+                document.getElementById('micButton').classList.remove('listening');
+                document.getElementById('listeningText').textContent = '';
+                // Auto-send if we got a transcript
+                if (document.getElementById('messageInput').value.trim()) {
+                    sendMessage();
+                }
+            };
+
+            recognition.onerror = function(event) {
+                console.error('Speech recognition error:', event.error);
+                document.getElementById('micButton').classList.remove('listening');
+                document.getElementById('listeningText').textContent = '';
+            };
+        }
+
+        // Connect on load
+        window.addEventListener('load', () => {
+            connectWebSocket();
+            autoResizeTextarea();
+        });
+
+        function generateSessionId() {
+            return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        function connectWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}/ws/${sessionId}`;
+
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = () => {
+                updateStatus('Connected', true);
+                console.log('Connected to Sierra');
+            };
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                handleIncomingMessage(data);
+            };
+
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+                updateStatus('Connection Error', false);
+            };
+
+            ws.onclose = () => {
+                updateStatus('Disconnected', false);
+                setTimeout(() => {
+                    console.log('Attempting to reconnect...');
+                    connectWebSocket();
+                }, 3000);
+            };
+        }
+
+        function updateStatus(text, connected) {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = connected ? '● Connected' : '○ ' + text;
+            statusEl.style.background = connected ? 'rgba(46, 204, 113, 0.2)' : 'rgba(231, 76, 60, 0.2)';
+            statusEl.style.color = connected ? '#2ecc71' : '#e74c3c';
+        }
+
+        function handleIncomingMessage(data) {
+            hideTypingIndicator();
+
+            if (data.type === 'assistant' || data.type === 'sierra') {
+                addMessage(data.message, 'sierra', {
+                    intent: data.mode,
+                    crisis: data.is_crisis,
+                    time: data.timestamp
+                });
+
+                // Speak the response if voice is enabled
+                if (voiceEnabled && data.message) {
+                    speak(data.message);
+                }
+            } else if (data.type === 'system') {
+                addMessage(data.message, 'system', { time: data.timestamp });
+            }
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+
+            if (!message || !ws || ws.readyState !== WebSocket.OPEN) return;
+
+            // Add user message to chat
+            addMessage(message, 'user');
+
+            // Send to server
+            ws.send(JSON.stringify({
+                type: 'chat',
+                message: message
+            }));
+
+            // Clear input
+            input.value = '';
+            input.style.height = 'auto';
+
+            // Show typing indicator
+            showTypingIndicator();
+        }
+
+        function sendQuick(message) {
+            document.getElementById('messageInput').value = message;
+            sendMessage();
+        }
+
+        function addMessage(text, sender, metadata = {}) {
+            const messagesArea = document.getElementById('messagesArea');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+
+            if (metadata.crisis) {
+                messageDiv.classList.add('crisis');
+            }
+
+            let content = '';
+
+            // Message content
+            content += `<div class="message-content">${escapeHtml(text)}</div>`;
+
+            // Timestamp
+            const time = metadata.time ? new Date(metadata.time).toLocaleTimeString() : new Date().toLocaleTimeString();
+            content += `<div class="message-time">${time}</div>`;
+
+            // Add speaker icon for Sierra's messages
+            if (sender === 'sierra') {
+                content += `<div class="speaker-icon" onclick="speak('${escapeHtml(text).replace(/'/g, "\\'")}')">🔊</div>`;
+            }
+
+            messageDiv.innerHTML = content;
+            messagesArea.appendChild(messageDiv);
+
+            // Scroll to bottom
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showTypingIndicator() {
+            document.getElementById('typingIndicator').classList.add('show');
+        }
+
+        function hideTypingIndicator() {
+            document.getElementById('typingIndicator').classList.remove('show');
+        }
+
+        function toggleVoice() {
+            voiceEnabled = !voiceEnabled;
+            const icon = document.getElementById('voiceIcon');
+            const text = document.getElementById('voiceText');
+            const btn = document.getElementById('voiceToggle');
+
+            if (voiceEnabled) {
+                icon.textContent = '🔊';
+                text.textContent = 'Voice On';
+                btn.classList.add('active');
+                speak("Voice output enabled. I'll speak my responses to you now.");
+            } else {
+                icon.textContent = '🔇';
+                text.textContent = 'Voice Off';
+                btn.classList.remove('active');
+                speechSynthesis.cancel();
+            }
+        }
+
+        function speak(text) {
+            if (!voiceEnabled && !text.includes('Voice output')) return;
+
+            // Cancel any ongoing speech
+            speechSynthesis.cancel();
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 0.9;
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+
+            // Try to find a pleasant female voice
+            const voices = speechSynthesis.getVoices();
+            const preferredVoice = voices.find(voice =>
+                voice.name.includes('Female') ||
+                voice.name.includes('Samantha') ||
+                voice.name.includes('Victoria') ||
+                voice.lang.includes('en')
+            );
+            if (preferredVoice) {
+                utterance.voice = preferredVoice;
+            }
+
+            utterance.onstart = function() {
+                document.getElementById('speakingIndicator').classList.add('show');
+                isSpeaking = true;
+            };
+
+            utterance.onend = function() {
+                document.getElementById('speakingIndicator').classList.remove('show');
+                isSpeaking = false;
+            };
+
+            utterance.onerror = function(event) {
+                console.error('Speech synthesis error:', event);
+                document.getElementById('speakingIndicator').classList.remove('show');
+                isSpeaking = false;
+            };
+
+            speechSynthesis.speak(utterance);
+        }
+
+        function toggleSpeechRecognition() {
+            if (!recognition) {
+                alert('Speech recognition is not supported in your browser. Please use Chrome, Edge, or Safari.');
+                return;
+            }
+
+            if (document.getElementById('micButton').classList.contains('listening')) {
+                recognition.stop();
+            } else {
+                recognition.start();
+            }
+        }
+
+        function handleKeyDown(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function autoResizeTextarea() {
+            const textarea = document.getElementById('messageInput');
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 150) + 'px';
+            });
+        }
+
+        function quickExit() {
+            // Clear chat
+            document.getElementById('messagesArea').innerHTML = '';
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.replace('https://www.weather.com');
+        }
+
+        // ESC key for quick exit
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                if (confirm('Quick exit to weather.com?')) {
+                    quickExit();
+                }
+            }
+        });
+
+        // Load voices when available
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = () => {
+                speechSynthesis.getVoices();
+            };
+        }
+    </script>
+</body>
+</html>

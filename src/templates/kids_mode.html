@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sierra - I'm Here To Help You 🦸</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            color: #2c3e50;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        /* Super Quick Exit - BIG and OBVIOUS */
+        .super-exit {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 20px 35px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 20px;
+            z-index: 10000;
+            box-shadow: 0 6px 25px rgba(231, 76, 60, 0.6);
+            animation: superPulse 2s infinite;
+        }
+
+        @keyframes superPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .super-exit:active {
+            transform: scale(0.95);
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .header h1 {
+            font-size: 3em;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .header p {
+            font-size: 1.5em;
+            color: #555;
+        }
+
+        /* Big Friendly Buttons */
+        .big-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            max-width: 1200px;
+            margin: 0 auto 30px;
+        }
+
+        .big-btn {
+            background: white;
+            border: 5px solid #667eea;
+            border-radius: 25px;
+            padding: 40px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .big-btn:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25);
+            border-color: #f093fb;
+        }
+
+        .big-btn .emoji {
+            font-size: 5em;
+            margin-bottom: 15px;
+        }
+
+        .big-btn h2 {
+            font-size: 2em;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .big-btn p {
+            font-size: 1.3em;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .big-btn.emergency {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+            border-color: #ff6b6b;
+            color: white;
+        }
+
+        .big-btn.emergency h2,
+        .big-btn.emergency p {
+            color: white;
+        }
+
+        .big-btn.safe {
+            background: linear-gradient(135deg, #51cf66, #37b24d);
+            border-color: #51cf66;
+            color: white;
+        }
+
+        .big-btn.safe h2,
+        .big-btn.safe p {
+            color: white;
+        }
+
+        /* Emergency Mode Overlay */
+        .emergency-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(231, 76, 60, 0.98);
+            z-index: 9999;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            animation: fadeIn 0.3s;
+        }
+
+        .emergency-overlay.show {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .emergency-content {
+            background: white;
+            padding: 50px;
+            border-radius: 30px;
+            text-align: center;
+            max-width: 600px;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .emergency-content h1 {
+            font-size: 3em;
+            color: #e74c3c;
+            margin-bottom: 20px;
+        }
+
+        .emergency-content .big-number {
+            font-size: 5em;
+            font-weight: bold;
+            color: #e74c3c;
+            margin: 30px 0;
+            letter-spacing: 5px;
+        }
+
+        .emergency-content p {
+            font-size: 1.5em;
+            color: #333;
+            margin: 20px 0;
+            line-height: 1.8;
+        }
+
+        .emergency-content button {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 50px;
+            font-size: 1.5em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 5px 20px rgba(39, 174, 96, 0.4);
+        }
+
+        .emergency-content button:hover {
+            background: #229954;
+            transform: scale(1.05);
+        }
+
+        /* Talk Mode */
+        .talk-mode {
+            display: none;
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .talk-mode.show {
+            display: block;
+        }
+
+        .messages {
+            height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 15px 20px;
+            border-radius: 20px;
+            font-size: 1.2em;
+            max-width: 80%;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .message.kid {
+            background: #667eea;
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .message.sierra {
+            background: #e3f2fd;
+            color: #333;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 15px;
+        }
+
+        .input-area input {
+            flex: 1;
+            padding: 20px;
+            border: 3px solid #667eea;
+            border-radius: 25px;
+            font-size: 1.3em;
+            font-family: inherit;
+        }
+
+        .input-area input:focus {
+            outline: none;
+            border-color: #f093fb;
+        }
+
+        .input-area button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 25px;
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .input-area button:hover {
+            background: #5568d3;
+            transform: scale(1.05);
+        }
+
+        .back-btn {
+            background: #95a5a6;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.2em;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .back-btn:hover {
+            background: #7f8c8d;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2em; }
+            .header p { font-size: 1.2em; }
+            .big-btn { padding: 30px; }
+            .big-btn .emoji { font-size: 3.5em; }
+            .big-btn h2 { font-size: 1.5em; }
+            .big-btn p { font-size: 1.1em; }
+            .emergency-content { padding: 30px; }
+            .emergency-content h1 { font-size: 2em; }
+            .emergency-content .big-number { font-size: 3.5em; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Super Quick Exit -->
+    <button class="super-exit" onclick="superQuickExit()">
+        ⚡ QUICK EXIT ⚡
+    </button>
+
+    <!-- Header -->
+    <div class="header" id="header">
+        <h1>🦸 Hi! I'm Sierra</h1>
+        <p>I'm here to help you stay safe</p>
+    </div>
+
+    <!-- Big Buttons -->
+    <div class="big-buttons" id="mainMenu">
+        <div class="big-btn emergency" onclick="showEmergency()">
+            <div class="emoji">🚨</div>
+            <h2>I Need Help NOW</h2>
+            <p>If someone is hurting you or your family right now</p>
+        </div>
+
+        <div class="big-btn" onclick="showTalkMode()">
+            <div class="emoji">💬</div>
+            <h2>I Want to Talk</h2>
+            <p>Talk to me about anything - I'm a good listener!</p>
+        </div>
+
+        <div class="big-btn safe" onclick="showSafePlan()">
+            <div class="emoji">🛡️</div>
+            <h2>Make a Safety Plan</h2>
+            <p>Let's plan what to do if something scary happens</p>
+        </div>
+
+        <div class="big-btn" onclick="showResources()">
+            <div class="emoji">📚</div>
+            <h2>Get Help Info</h2>
+            <p>Phone numbers and places that can help you</p>
+        </div>
+
+        <div class="big-btn" onclick="showEscapePlan()">
+            <div class="emoji">🏃</div>
+            <h2>Quick Escape Plan</h2>
+            <p>What to do if you need to leave fast (like your mom said "start running")</p>
+        </div>
+
+        <div class="big-btn safe" onclick="showGames()">
+            <div class="emoji">🎮</div>
+            <h2>Fun Stuff</h2>
+            <p>Games and activities to help you feel better</p>
+        </div>
+    </div>
+
+    <!-- Emergency Overlay -->
+    <div class="emergency-overlay" id="emergencyOverlay">
+        <div class="emergency-content">
+            <h1>🚨 EMERGENCY HELP 🚨</h1>
+            <p style="font-size: 1.8em; font-weight: bold;">
+                If someone is hurting you or your family RIGHT NOW:
+            </p>
+            <div class="big-number">911</div>
+            <p>
+                Call 911 and tell them you need help.<br>
+                It's okay to call. You're being brave!
+            </p>
+            <hr style="margin: 30px 0; border: 2px solid #e0e0e0;">
+            <p style="font-size: 1.3em;">
+                <strong>Or call this number 24/7:</strong>
+            </p>
+            <div class="big-number" style="font-size: 3em;">
+                1-800-799-7233
+            </div>
+            <p>
+                This is the Kids Helpline.<br>
+                Safe adults who help kids like you.
+            </p>
+            <button onclick="closeEmergency()">I'm Safe Now</button>
+        </div>
+    </div>
+
+    <!-- Talk Mode -->
+    <div class="talk-mode" id="talkMode">
+        <h2 style="text-align: center; color: #667eea; font-size: 2.5em; margin-bottom: 20px;">
+            💬 Talk to Sierra
+        </h2>
+        <div class="messages" id="messages">
+            <div class="message sierra">
+                Hey! I'm so glad you want to talk to me. You can tell me anything - I'm here to listen and help.
+                What's on your mind? 💜
+            </div>
+        </div>
+        <div class="input-area">
+            <input
+                type="text"
+                id="messageInput"
+                placeholder="Type your message here..."
+                onkeydown="if(event.key==='Enter') sendKidMessage()"
+            >
+            <button onclick="sendKidMessage()">Send 📤</button>
+        </div>
+        <button class="back-btn" onclick="goBack()">⬅️ Back to Menu</button>
+    </div>
+
+    <script>
+        let currentMode = 'menu';
+
+        function showEmergency() {
+            document.getElementById('emergencyOverlay').classList.add('show');
+            currentMode = 'emergency';
+        }
+
+        function closeEmergency() {
+            document.getElementById('emergencyOverlay').classList.remove('show');
+            currentMode = 'menu';
+        }
+
+        function showTalkMode() {
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('header').style.display = 'none';
+            document.getElementById('talkMode').classList.add('show');
+            currentMode = 'talk';
+        }
+
+        function showSafePlan() {
+            alert('🛡️ Safety Plan\n\nLet\'s make a plan together!\n\n1. Safe place to go (neighbor, friend\'s house)\n2. Important phone numbers\n3. What to grab if you need to leave fast\n4. Secret signal with friends/family\n\nWould you like to talk about making your plan?');
+            showTalkMode();
+            addMessage('I want to make a safety plan', 'kid');
+        }
+
+        function showResources() {
+            const resources = `📞 IMPORTANT NUMBERS FOR KIDS 📞
+
+🚨 EMERGENCY (someone is hurting you NOW):
+   911
+
+💜 Kids Helpline (24/7, talk to safe adults):
+   1-800-799-7233
+
+📱 Text for Help:
+   Text HOME to 741741
+
+🏠 Childhelp National Hotline:
+   1-800-422-4453
+
+You can call these numbers anytime, day or night. Safe adults will help you!`;
+
+            alert(resources);
+        }
+
+        function showEscapePlan() {
+            const escapePlan = `🏃 QUICK ESCAPE PLAN 🏃
+
+If your mom/dad says "START RUNNING" or you need to leave FAST:
+
+1. 🏃 RUN to a safe place:
+   • Neighbor's house
+   • Friend's house
+   • Store or public place
+   • Police/Fire station
+
+2. 📱 Call for help:
+   • 911
+   • Trusted adult
+   • Kids Helpline: 1-800-799-7233
+
+3. 🎒 If you have time, grab:
+   • Phone/tablet
+   • Money if you can
+   • Important stuff (medicine)
+
+4. 🤐 Stay hidden until help comes
+
+5. 💜 You're BRAVE for getting to safety!
+
+Remember: YOUR SAFETY is the most important thing!`;
+
+            alert(escapePlan);
+        }
+
+        function showGames() {
+            alert('🎮 Fun Stuff Coming Soon!\n\n• Breathing exercises\n• Calming games\n• Drawing space\n• Happy videos\n\nFor now, want to talk about what helps you feel better?');
+            showTalkMode();
+        }
+
+        function addMessage(text, sender) {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.textContent = text;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function sendKidMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            addMessage(message, 'kid');
+            input.value = '';
+
+            // Simple auto-responses (in production, this would connect to Sierra's AI)
+            setTimeout(() => {
+                let response = getKidFriendlyResponse(message);
+                addMessage(response, 'sierra');
+            }, 1000);
+        }
+
+        function getKidFriendlyResponse(message) {
+            const msg = message.toLowerCase();
+
+            if (msg.includes('scared') || msg.includes('afraid')) {
+                return "I understand you're feeling scared. That's okay - it's normal to feel scared sometimes. You're really brave for talking about it. Do you want to tell me more about what's making you scared? I'm here to listen. 💜";
+            } else if (msg.includes('help')) {
+                return "I'm here to help you! You can talk to me about anything. If you need help right now, remember you can call 911 or the Kids Helpline at 1-800-799-7233. What kind of help do you need? 🤗";
+            } else if (msg.includes('hurt') || msg.includes('hitting')) {
+                return "I'm really sorry someone is hurting you. That's NOT okay and it's NOT your fault. You deserve to be safe. Would you like to talk about a safety plan, or do you need emergency help right now? 🛡️";
+            } else if (msg.includes('sad') || msg.includes('cry')) {
+                return "It's okay to feel sad and to cry. Your feelings are important and real. I'm here for you. Sometimes talking about what's making us sad can help. Want to tell me more? 💙";
+            } else if (msg.includes('safety plan')) {
+                return "That's a great idea! Let's make a safety plan together. First, do you know a safe place you could go if you needed to leave your house quickly? (Like a neighbor's house, or a friend's house?) 🏠";
+            } else {
+                return "Thanks for sharing that with me. I'm listening and I care about you. You're being really brave talking to me. Is there anything else you want to tell me, or anything I can help you with? 💜";
+            }
+        }
+
+        function goBack() {
+            document.getElementById('talkMode').classList.remove('show');
+            document.getElementById('mainMenu').style.display = 'grid';
+            document.getElementById('header').style.display = 'block';
+            currentMode = 'menu';
+        }
+
+        function superQuickExit() {
+            // Immediately redirect to safe site
+            window.location.replace('https://www.nickjr.com');
+        }
+
+        // ESC key for super quick exit
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                superQuickExit();
+            }
+        });
+
+        // Triple-click/tap anywhere for emergency exit
+        let clickCount = 0;
+        let clickTimer = null;
+
+        document.body.addEventListener('click', function() {
+            clickCount++;
+
+            if (clickCount === 1) {
+                clickTimer = setTimeout(function() {
+                    clickCount = 0;
+                }, 800);
+            } else if (clickCount === 3) {
+                clearTimeout(clickTimer);
+                clickCount = 0;
+                if (confirm('Quick exit to safe website?')) {
+                    superQuickExit();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
