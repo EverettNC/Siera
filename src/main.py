@@ -57,7 +57,7 @@ app.add_middleware(
 )
 
 # Mount static files for images/assets
-app.mount("/static", StaticFiles(directory="/home/user/Siera/src/static"), name="static")
+app.mount("/static", StaticFiles(directory="src/static"), name="static")
 
 # Initialize core components
 resource_db = ResourceDatabase()
