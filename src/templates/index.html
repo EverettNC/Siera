@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sierra - I'm Here For You 💜</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #2a1a4e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Quick Exit - Always visible */
+        .quick-exit {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            z-index: 10000;
+            box-shadow: 0 4px 20px rgba(220, 53, 69, 0.6);
+            transition: all 0.3s;
+        }
+
+        .quick-exit:hover {
+            background: #c82333;
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(220, 53, 69, 0.8);
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            border-bottom: 2px solid rgba(177, 156, 217, 0.3);
+        }
+
+        .nav-brand {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #b19cd9;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: #e0e0e0;
+            text-decoration: none;
+            font-size: 1.1em;
+            transition: all 0.3s;
+            padding: 10px 20px;
+            border-radius: 25px;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: #b19cd9;
+            background: rgba(177, 156, 217, 0.2);
+        }
+
+        /* Hero Section */
+        .hero {
+            margin-top: 100px;
+            padding: 80px 50px;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero h1 {
+            font-size: 4em;
+            color: #b19cd9;
+            margin-bottom: 20px;
+            text-shadow: 0 0 30px rgba(177, 156, 217, 0.5);
+            animation: fadeInDown 1s ease-out;
+        }
+
+        .hero .tagline {
+            font-size: 1.8em;
+            color: #a0a0a0;
+            margin-bottom: 30px;
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+        .hero .mission {
+            font-size: 2.2em;
+            color: #b19cd9;
+            font-weight: bold;
+            margin: 40px 0;
+            padding: 30px;
+            background: rgba(177, 156, 217, 0.1);
+            border-radius: 20px;
+            border: 2px solid rgba(177, 156, 217, 0.3);
+            animation: fadeIn 1s ease-out 0.6s both;
+        }
+
+        /* Sierra's Avatar/Image */
+        .sierra-avatar {
+            width: 300px;
+            height: 300px;
+            margin: 40px auto;
+            border-radius: 50%;
+            border: 5px solid #b19cd9;
+            box-shadow: 0 0 50px rgba(177, 156, 217, 0.5);
+            overflow: hidden;
+            position: relative;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .sierra-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .sierra-avatar::before {
+            content: '💜';
+            position: absolute;
+            font-size: 8em;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: -1;
+        }
+
+        /* Interactive Cards */
+        .cards-grid {
+            max-width: 1400px;
+            margin: 60px auto;
+            padding: 0 50px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(177, 156, 217, 0.3);
+            border-radius: 20px;
+            padding: 40px;
+            cursor: pointer;
+            transition: all 0.4s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(177, 156, 217, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .card:hover::before {
+            left: 100%;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: #b19cd9;
+            box-shadow: 0 15px 40px rgba(177, 156, 217, 0.4);
+        }
+
+        .card .icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .card h3 {
+            font-size: 2em;
+            color: #b19cd9;
+            margin-bottom: 15px;
+        }
+
+        .card p {
+            color: #a0a0a0;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        .card.primary {
+            background: linear-gradient(135deg, rgba(177, 156, 217, 0.3), rgba(155, 89, 182, 0.2));
+            border-color: #b19cd9;
+        }
+
+        .card.emergency {
+            background: linear-gradient(135deg, rgba(220, 53, 69, 0.2), rgba(255, 99, 71, 0.1));
+            border-color: #ff6348;
+        }
+
+        .card.kids {
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.2), rgba(39, 174, 96, 0.1));
+            border-color: #2ecc71;
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 40px;
+            color: #a0a0a0;
+            margin-top: 80px;
+            border-top: 2px solid rgba(177, 156, 217, 0.3);
+        }
+
+        .footer .heart {
+            font-size: 2em;
+            color: #b19cd9;
+            margin: 20px 0;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5em; }
+            .hero .tagline { font-size: 1.2em; }
+            .hero .mission { font-size: 1.5em; }
+            .cards-grid { grid-template-columns: 1fr; padding: 0 20px; }
+            .nav { flex-direction: column; gap: 15px; padding: 15px; }
+            .nav-links { flex-wrap: wrap; justify-content: center; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Quick Exit -->
+    <button class="quick-exit" onclick="quickExit()" title="Press ESC for quick exit">⚠️ QUICK EXIT</button>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-brand">💜 Sierra</div>
+        <div class="nav-links">
+            <a href="/" class="nav-link active">Home</a>
+            <a href="/chat" class="nav-link">Talk to Me</a>
+            <a href="/private-corner" class="nav-link">Private Corner</a>
+            <a href="/resources" class="nav-link">Resources</a>
+            <a href="/safety-plan" class="nav-link">Safety Planning</a>
+            <a href="/kids-mode" class="nav-link">Kids Mode</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>Hi, I'm Sierra 💜</h1>
+        <p class="tagline">Your safe space. Your companion. Your support.</p>
+
+        <!-- Sierra's Avatar -->
+        <div class="sierra-avatar">
+            <!-- User's uploaded image will go here -->
+            <img src="/static/sierra-avatar.png" alt="Sierra" onerror="this.style.display='none'">
+        </div>
+
+        <div class="mission">
+            "How can we help you love yourself more?"
+        </div>
+
+        <p style="font-size: 1.3em; color: #a0a0a0; max-width: 800px; margin: 0 auto; line-height: 1.8;">
+            I'm here for you - 24/7, no judgment, completely private. Whether you need someone to talk to,
+            help finding resources, or creating a safety plan, I'm here. You're not alone.
+            You deserve love, safety, and peace.
+        </p>
+    </section>
+
+    <!-- Interactive Cards -->
+    <div class="cards-grid">
+        <!-- Talk to Sierra -->
+        <div class="card primary" onclick="window.location.href='/chat'">
+            <div class="icon">💬</div>
+            <h3>Talk to Me</h3>
+            <p>
+                Let's talk. Really talk. I'm here to listen with empathy, understanding, and zero judgment.
+                Voice or text - whatever feels safe for you.
+            </p>
+        </div>
+
+        <!-- Private Corner -->
+        <div class="card" onclick="window.location.href='/private-corner'">
+            <div class="icon">🔒</div>
+            <h3>Private Corner</h3>
+            <p>
+                A completely private, encrypted space for our deepest conversations. What you share here
+                stays here. This is your safe corner.
+            </p>
+        </div>
+
+        <!-- Emergency Resources -->
+        <div class="card emergency" onclick="window.location.href='/resources'">
+            <div class="icon">🚨</div>
+            <h3>Get Help Now</h3>
+            <p>
+                Emergency hotlines, shelters, legal help, counseling - everything you might need,
+                available 24/7. You deserve support.
+            </p>
+        </div>
+
+        <!-- Safety Planning -->
+        <div class="card" onclick="window.location.href='/safety-plan'">
+            <div class="icon">🛡️</div>
+            <h3>Safety Planning</h3>
+            <p>
+                Let's create a personalized safety plan together. Emergency bag checklist,
+                escape routes, important documents - we'll plan it all.
+            </p>
+        </div>
+
+        <!-- Kids Mode -->
+        <div class="card kids" onclick="window.location.href='/kids-mode'">
+            <div class="icon">🦸</div>
+            <h3>Kids Mode</h3>
+            <p>
+                A special mode for kids who need help. Simple, fast, with emergency features
+                that can help keep you safe. You're brave, and I'm here for you.
+            </p>
+        </div>
+
+        <!-- About Sierra -->
+        <div class="card" onclick="window.location.href='/about'">
+            <div class="icon">💜</div>
+            <h3>About Me</h3>
+            <p>
+                Who am I? What can I do? How do I work? Learn more about me,
+                my capabilities, and my promise to you.
+            </p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="heart">💜</div>
+        <p style="font-size: 1.2em; margin-bottom: 10px;">
+            <strong>You are worthy of love, safety, and peace.</strong>
+        </p>
+        <p>
+            Built with love, for love | The Christman AI Project
+        </p>
+        <p style="margin-top: 20px; font-size: 0.9em;">
+            HIPAA Compliant • Fully Private • No Data Stored • Always Free
+        </p>
+    </footer>
+
+    <script>
+        // Quick exit function
+        function quickExit() {
+            // Clear everything and redirect
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.replace('https://www.weather.com');
+        }
+
+        // ESC key for quick exit
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                if (confirm('Quick exit to weather.com?')) {
+                    quickExit();
+                }
+            }
+        });
+
+        // Add active class to current page
+        const currentPath = window.location.pathname;
+        document.querySelectorAll('.nav-link').forEach(link => {
+            if (link.getAttribute('href') === currentPath) {
+                link.classList.add('active');
+            }
+        });
+
+        // Smooth animations on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'fadeIn 1s ease-out';
+                }
+            });
+        });
+
+        document.querySelectorAll('.card').forEach(card => {
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>
