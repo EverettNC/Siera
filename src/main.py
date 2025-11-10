@@ -40,6 +40,18 @@ try:
 except ImportError:
     CORTEX_AVAILABLE = False
 
+# Derek Protocol Client - Family network integration
+try:
+    from .derek_protocol_client import (
+        get_derek_client,
+        bootstrap_sierra_to_family,
+        MessageType,
+        FamilyMember
+    )
+    DEREK_PROTOCOL_AVAILABLE = True
+except ImportError:
+    DEREK_PROTOCOL_AVAILABLE = False
+
 # Initialize FastAPI app
 app = FastAPI(
     title=settings.app_name,
@@ -62,6 +74,67 @@ app.mount("/static", StaticFiles(directory="src/static"), name="static")
 # Initialize core components
 resource_db = ResourceDatabase()
 active_sessions: Dict[str, Dict] = {}
+
+
+@app.on_event("startup")
+async def startup_event():
+    """Initialize systems on startup"""
+    print("="*70)
+    print("SIERRA STARTUP - Connecting to Family Network")
+    print("="*70)
+
+    # Bootstrap Derek Protocol if available
+    if DEREK_PROTOCOL_AVAILABLE:
+        try:
+            # Get cortex and event bus if available
+            cortex = get_cortex() if CORTEX_AVAILABLE else None
+
+            # Import event bus
+            event_bus = None
+            try:
+                from .event_bus import get_event_bus
+                event_bus = get_event_bus()
+            except ImportError:
+                pass
+
+            # Bootstrap Sierra to family network
+            # Derek URL can be configured via environment variable
+            import os
+            derek_url = os.getenv("DEREK_URL", "ws://localhost:8001/derek")
+
+            derek_client = bootstrap_sierra_to_family(
+                derek_url=derek_url,
+                event_bus=event_bus,
+                cortex=cortex
+            )
+
+            print(f"✅ Derek Protocol: Connected to {derek_url}")
+            print("🔗 Sierra is now part of the Christman AI family network")
+
+        except Exception as e:
+            print(f"⚠️  Derek Protocol: Connection failed - {e}")
+            print("   Sierra will run standalone (family features unavailable)")
+    else:
+        print("⚠️  Derek Protocol: Not available")
+        print("   Install websockets: pip install websockets")
+
+    print("="*70)
+    print()
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Clean shutdown"""
+    print("Sierra shutting down...")
+
+    # Disconnect from Derek
+    if DEREK_PROTOCOL_AVAILABLE:
+        try:
+            derek_client = get_derek_client()
+            derek_client.disconnect()
+            print("✅ Derek Protocol: Disconnected gracefully")
+        except Exception as e:
+            print(f"Derek Protocol shutdown error: {e}")
 
 
 class ConnectionManager:
